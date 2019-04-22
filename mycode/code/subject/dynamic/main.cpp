@@ -107,16 +107,79 @@ std::string lcst2(std::string & str1,std::string & str2){
     return str1.substr(end - max + 1,max);
 }
 
+/************** Q2 *************/
+IntVector2D * getdpQ(std::string & str1,std::string & str2){
+    IntVector2D * pArray = new IntVector2D;
+
+    pArray->resize(height);
+    for(int i=0; i<height; ++i)
+    {
+        (*pArray)[i].resize(width);
+    }
+
+    (*pArray)[0][0] = (str1[0] == str2[0] ? 1 : 0);
+    //initialize the first column
+    for(int i = 1; i < str1.size(); ++i){
+            (*pArray)[i][0] = std::max((*pArray)[i - 1][0],str1[i] == str2[0] ? 1 : 0);
+    }
+    //initialize the first row
+    for(int i = 1; i < str2.size(); ++i){
+            (*pArray)[0][i] = std::max((*pArray)[0][i - 1],str1[0] == str2[i] ? 1 : 0);
+    }
+
+    for(int i = 1; i < str1.size(); ++i){
+        for(int j = 1; j < str2.size(); ++j){
+            (*pArray)[i][j] = std::max( (*pArray)[i][j-1],(*pArray)[i-1][j] );
+
+            if(str1[i] == str2[j]){
+                (*pArray)[i][j] = std::max((*pArray)[i][j] ,(*pArray)[i-1][j-1] + 1);
+            }
+        }
+    }
+    return pArray;
+}
+
+char * lcse(std::string & str1,std::string & str2){
+    //traverse diagonal from south-east to north-west
+    IntVector2D * pArray = getdpQ(str1,str2);
+    int m = str1.size()-1;
+    int n = str2.size()-1;
+
+    //std::cout<<"length of res: "<<(*pArray)[m][n]<<std::endl;
+    int index = (*pArray)[m][n];
+    char * res = new char[index];
+    //int index = sizeof(res) - 1;   //errpr: the size of res pointer,not the char array
+    while(index >= 0){
+        if(n > 0 && (*pArray)[m][n] == (*pArray)[m][n-1]){
+                n--;
+        }else if(m > 0 && (*pArray)[m][n] == (*pArray)[m-1][n])
+        {
+                m--;
+        }
+        else{
+            res[index--] = str1[m];
+            m--;
+            n--;
+        }
+    }
+    return res;
+}
+
+
 int main() {
     std::cout << "initilize two string " << std::endl;
 
     std::string str1 = "1AB2345CD";
     std::string str2 = "12345EF";
 
-    //std::string result = lcstl(str1,str2);
+    std::string result = lcstl(str1,str2);
 
-    std::string result = lcst2(str1,str2);
-    std::cout<<"substring : "<<result.c_str()<<std::endl;
+    //std::string result = lcst2(str1,str2);
+    std::cout<<"substring : "<<result.c_str()<<std::endl<<std::endl;
+
+    char * rec = lcse(str1,str2);
+    std::cout<<"the common subvec is: "<<rec<<std::endl;
+
     return 0;
 }
 
