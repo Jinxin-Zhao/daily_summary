@@ -28,26 +28,26 @@
 + param:[A c d r u x f v]
 [note]: f must be the last
     - c: create file
-    - f: specify  filename
-    - v: verbose,show more infomation of source files
-    - x: exact
-    - t: show info of tar
-    - A: merge series of tar files
-    - r: add more source files to tar files
+ps -fu 的每一列属性
+ps -fu 的每一列属性mation of source ps -fu 的每一列属性
+ps -fu 的每一列属性
+ps -fu 的每一列属性
+ps -fu 的每一列属性les
+ps -fu 的每一列属性to tar files
 ```
     tar -cvf test.tar file1 file2
     tar -tvf test.tar
 
     tar -rvf test.tar new_file
 
-    #extract all files to current path
-    ]# tar -xvf test.tar
-    #extract all files to specified path
-    ]# tar -xvf test.tar -C /path/to/extract_dir/
-    #extract specified files to current path
-    ]# tar -xvf test.tar file1 file3
-
-    ]# tar -cvf - files/ | ssh amazon@172.16.2.211 "tar xv -C Documents/"
+ps -fu 的每一列属性t path
+ps -fu 的每一列属性
+ps -fu 的每一列属性ied path
+ps -fu 的每一列属性h/to/extract_dir/
+ps -fu 的每一列属性s -fu 的每一列属性 current path
+    ]# tar -xvf test.tar file1 ps -fu 的每一列属性file3
+ps -fu 的每一列属性
+    ]# tar -cvf - files/ | ssh ps -fu 的每一列属性amazon@172.16.2.211 "tar xv -C Documents/"
 
     #merge 2 tar files
     ]# tar -Af file1.tar file2.tar
@@ -58,8 +58,8 @@
         file1
         file2
     ]# tar -uf test.tar file1
-
-
+ps -fu 的每一列属性
+ps -fu 的每一列属性
     #delete files from tar files
     ]# tar -f test.tar --delete file1 file2
     or ]# tar --delete --file test.tar file1 file2
@@ -69,15 +69,65 @@
     or you can put file1&file2 to a dir list,then:
     ]# tar -cf test.tar * -X list
 ```
+
+### ps command
++ param:[A a au e N c]
+```
+[root@localhost test6]# ps -l
+F S UID PID PPID C PRI NI ADDR SZ WCHAN TTY TIME CMD
+4 S 0 17398 17394 0 75 0 - 16543 wait pts/0 00:00:00 bash
+4 R 0 17469 17398 0 77 0 - 15877 - pts/0 00:00:00 ps
+
+各相关信息的意义：
+F 代表这个程序的旗标 (flag)， 4 代表使用者为 super user
+S 代表这个程序的状态 (STAT)，关于各 STAT 的意义将在内文介绍
+UID 程序被该 UID 所拥有
+PID 就是这个程序的 ID ！
+PPID 则是其上级父程序的ID
+C CPU 使用的资源百分比
+PRI 这个是 Priority (优先执行序) 的缩写，详细后面介绍
+NI 这个是 Nice 值，在下一小节我们会持续介绍
+ADDR 这个是 kernel function，指出该程序在内存的那个部分。如果是个 running的程序，一般就是 "-"
+SZ 使用掉的内存大小
+WCHAN 目前这个程序是否正在运作当中，若为 - 表示正在运作
+TTY 登入者的终端机位置
+TIME 使用掉的 CPU 时间。
+CMD 所下达的指令为何
+在预设的情况下， ps 仅会列出与目前所在的 bash shell 有关的 PID 而已，所以， 当我使用 ps -l 的时候，只有三个 PID。
+
+STAT：该程序目前的状态，主要的状态有
+R ：该程序目前正在运作，或者是可被运作
+S ：该程序目前正在睡眠当中 (可说是 idle 状态)，但可被某些讯号 (signal) 唤醒。
+T ：该程序目前正在侦测或者是停止了
+Z ：该程序应该已经终止，但是其父程序却无法正常的终止他，造成 zombie (疆尸) 程序的状态
+//
+D 不可中断 uninterruptible sleep (usually IO) 
+R 运行 runnable (on run queue) 
+S 中断 sleeping 
+T 停止 traced or stopped 
+Z 僵死 a defunct (”zombie”) process
+
+
+
+
+3. 输出指定的字段
+命令：ps -o pid,ppid,pgrp,session,tpgid,comm
+
+[root@localhost test6]# ps -o pid,ppid,pgrp,session,tpgid,comm
+PID PPID PGRP SESS TPGID COMMAND
+17398 17394 17398 17398 17478 bash
+17478 17398 17478 17398 17478 ps
+```
+
 ### array && if else && while
 ```
     #a blankspace between each words and no comma
     a=( "dir_1" "dir_2" "dir_3" )
     i=0
-    while [ $i -lt ${#a[@]} ]
+    while [ $i -lt ${#a[@]} ]ps -fu 的每一列属性
     do
         echo ${a[$i]}
-        if [ -d ${a[i]} ];then
+        if [ -d ${a[i]} ];theps -fu 的每一列属性
             echo exist
         else
             mkdir ${a[i]}
