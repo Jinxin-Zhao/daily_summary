@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/xina/workspace/treasure/mycode/code/data_structure/DFS/DFS.h
+iostream
+-
+queue
+-
+
+/Users/xina/workspace/treasure/mycode/code/data_structure/DFS/main.cpp
+DFS.h
+/Users/xina/workspace/treasure/mycode/code/data_structure/DFS/DFS.h
+
