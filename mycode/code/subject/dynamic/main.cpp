@@ -1,16 +1,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-//classic dynamic pattern
-// Q1: return longest common substring
-// two solution: 1 time O(M*N),space O(M*N);   2 time O(M*N),space O(1)
-// Example: str1: 1AB2345CD, str2: 12345EF
-// substring: 2345
-
-
-// Q2: return longest common subvector
-// Example: str1: 1A2C3D4B56, str2: B1D23CA45B6A
-// subvector: 123456 or 12C4B6
 
 typedef std::vector<int>  IntVector;
 typedef std::vector<IntVector>    IntVector2D;
@@ -18,6 +8,11 @@ typedef std::vector<IntVector>    IntVector2D;
 const int height = 500;
 const int width  = 500;
 
+//classic dynamic pattern
+// Q1: return longest common substring
+// two solution: 1 time O(M*N),space O(M*N);   2 time O(M*N),space O(1)
+// Example: str1: 1AB2345CD, str2: 12345EF
+// substring: 2345
 /******************* solution 1 ***************/
 //space O(n) = O(M*N)
 IntVector2D * getdp(std::string & str1,std::string & str2){
@@ -72,6 +67,10 @@ std::string lcstl(std::string & str1,std::string & str2){
         return str1.substr(end - max + 1,max);
 }
 
+
+// Q2: return longest common subvector
+// Example: str1: 1A2C3D4B56, str2: B1D23CA45B6A
+// subvector: 123456 or 12C4B6
 /******************* solution 2 ***************/
 //space O(n) = O(1)
 std::string lcst2(std::string & str1,std::string & str2){
@@ -166,19 +165,49 @@ char * lcse(std::string & str1,std::string & str2){
 }
 
 
+
+//Q3： 0/1 bag classic dp issue
+//Example: a bag capacity: 10; 4 objects weigh 2,3,5,5; values 2,4,3,7
+//maxvalue: 13 , {2,3,5}===>{2,4,7}
+
+//i: nums of objects, c: capacity of bag
+
+IntVector2D * results = new IntVector2D;
+
+int ks2(int * w,int * v,int i,int c){
+    int res = 0;
+    if((*results)[i][c] != 0) return (*results)[i][c];
+    if(i == 0 || c == 0){
+        res = 0;
+    }else if(w[i] > c){
+        (*results)[i][c] = (*results)[i-1][c];
+    }else{
+        int temp = ks2(i-1,c);
+        int temp_1 = ks2(i-1,c-w[i]) + v[i];
+        res = std::max(temp,temp_1);
+        (*results)[i][c] = res;
+    }
+    return res;
+}
+
 int main() {
     std::cout << "initilize two string " << std::endl;
 
     std::string str1 = "1AB2345CD";
     std::string str2 = "12345EF";
-
+    /*************************************/
     std::string result = lcstl(str1,str2);
-
     //std::string result = lcst2(str1,str2);
     std::cout<<"substring : "<<result.c_str()<<std::endl<<std::endl;
-
+    /*************************************/
     char * rec = lcse(str1,str2);
     std::cout<<"the common subvec is: "<<rec<<std::endl;
+    /*************************************/
+    int w[] = {0,2,3,5,5};
+    int v[] = {0,2,4,3,7};
+    int objects = 4;
+    int capacity = 10;
+    std::cout<<"max value of bag is : "<<ks2(w,v,objects,capacity)<<std::endl;
 
     return 0;
 }
