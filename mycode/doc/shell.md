@@ -1,7 +1,95 @@
 ### awk
 + 
+### sed
++ delete sepecified rows：
+```cpp
+//bid class 
+Class Field{
+//bid1
+int bid1;
+//bid2;
+int bid2;
+//bid3;
+int bid3;
+//bid4
+int bid4;
+//bid5
+int bid5;
+};
+
+]# sed -i 1~2d tmp.txt
+//from row 1,delete a row every two rows;
+//'-i' means it effects in tmp.txt directly
+]# cat tmp.txt
+Class Field{
+int bid1;
+int bid2;
+int bid3;
+int bid4;
+int bid5;
+};
+
+
+]# sed Nd filename
+//delete Nth row,N=1,2,...
+]# sed 4,8d filename
+//delete rows form 4th to 8th row
+]# sed '$d' filename
+//delete last row
+
+]# sed /keywords/d filename
+//delete all rows which contain 'keywords'
+
+
+
+]# sed '/keywords/,$d' filename
+//delete rows from which contain 'keywords' at the first time  to the end of the file 
+```cpp
+//tmp.txt
+]# cat tmp.txt
+co
+dd
+1
+co
+dd 
+2
+co
+dd
+3
+co
+dd
+4
+co
+dd
+5
+
+]# sed '/dd/,$d' tmp.txt
+co  //from second row,all deleted
+
+]# sed '/co/,+1d' tmp.txt
+1
+2
+3
+4
+5
+//delete row contains 'co' and the row behind co
+
+
+```
+
+
+]# sed '/keywords/,+2d' filename
+//delete the rows which contain keywords and the next 2 rows
+
+]# sed '/^$/d' filename
+//delete the blank row
+```
 
 ###vim editor
++ clear content of file
+    - 1. gg  //jump to the top of file
+    - 2. dG  //clear all contents of file
+
 + remove string like this:
     - d+w:  (127.9.8.7.000)---->(.98.7.000)
 + find & substitute
@@ -57,11 +145,95 @@ ps -fu 的每一列属性
     ]# tar -tvf  test.tar
         file1
         file2
-    ]# tar -uf test.tar file1
-ps -fu 的每一列属性
-ps -fu 的每一列属性
-    #delete files from tar files
-    ]# tar -f test.tar --delete file1 file2
+<!-- TOC -->
+
+[1. lamda](#1-lamda)
+[2. smart pointer](#2-smart_pointer)
+[3. new enum](#3-new_enum)
+[4. cast & type](#4-cast_type)
+[5. lvalue & rvalue](#5-lvalue_rvalue)
+[6. move & forward](#6-move_forward)
+[7. variadic template](#7-variadic_template)
+[8. tuple](#8-tuple)
+[9. functional & bind](#9-functional_bind)
+
+<!-- TOC --> test.tar <!-- TOC -->
+
+[1. lamda](#1-lamda)
+[2. smart pointer](#2-smart_pointer)
+[3. new enum](#3-new_enum)
+[4. cast & type](#4-cast_type)
+[5. lvalue & rvalue](#5-lvalue_rvalue)
+[6. move & forward](#6-move_forward)
+[7. variadic template](#7-variadic_template)
+[8. tuple](#8-tuple)
+[9. functional & bind](#9-functional_bind)
+
+<!-- TOC -->
+<!-- TOC -->
+
+[1. lamda](#1-lamda)
+[2. smart pointer](#2-smart_pointer)
+[3. new enum](#3-new_enum)
+[4. cast & type](#4-cast_type)
+[5. lvalue & rvalue](#5-lvalue_rvalue)
+[6. move & forward](#6-move_forward)
+[7. variadic template](#7-variadic_template)
+[8. tuple](#8-tuple)
+[9. functional & bind](#9-functional_bind)
+
+<!-- TOC -->列属性
+<!-- TOC -->
+
+[1. lamda](#1-lamda)
+[2. smart pointer](#2-smart_pointer)
+[3. new enum](#3-new_enum)
+[4. cast & type](#4-cast_type)
+[5. lvalue & rvalue](#5-lvalue_rvalue)
+[6. move & forward](#6-move_forward)
+[7. variadic template](#7-variadic_template)
+[8. tuple](#8-tuple)
+[9. functional & bind](#9-functional_bind)
+
+<!-- TOC -->列属性
+<!-- TOC -->
+
+[1. lamda](#1-lamda)
+[2. smart pointer](#2-smart_pointer)
+[3. new enum](#3-new_enum)
+[4. cast & type](#4-cast_type)
+[5. lvalue & rvalue](#5-lvalue_rvalue)
+[6. move & forward](#6-move_forward)
+[7. variadic template](#7-variadic_template)
+[8. tuple](#8-tuple)
+[9. functional & bind](#9-functional_bind)
+
+<!-- TOC -->les from tar <!-- TOC -->
+
+[1. lamda](#1-lamda)
+[2. smart pointer](#2-smart_pointer)
+[3. new enum](#3-new_enum)
+[4. cast & type](#4-cast_type)
+[5. lvalue & rvalue](#5-lvalue_rvalue)
+[6. move & forward](#6-move_forward)
+[7. variadic template](#7-variadic_template)
+[8. tuple](#8-tuple)
+[9. functional & bind](#9-functional_bind)
+
+<!-- TOC -->
+<!-- TOC -->
+
+[1. lamda](#1-lamda)
+[2. smart pointer](#2-smart_pointer)
+[3. new enum](#3-new_enum)
+[4. cast & type](#4-cast_type)
+[5. lvalue & rvalue](#5-lvalue_rvalue)
+[6. move & forward](#6-move_forward)
+[7. variadic template](#7-variadic_template)
+[8. tuple](#8-tuple)
+[9. functional & bind](#9-functional_bind)
+
+<!-- TOC -->test.tar --delete file1 file2
     or ]# tar --delete --file test.tar file1 file2
 
     #exclude specified files from tar files
