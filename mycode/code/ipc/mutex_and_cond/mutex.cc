@@ -182,11 +182,21 @@ void * produce(void * arg){
 		put.nval++;
 		pthread_mutex_unlock(&put.mutex);
 
+		// pthread_mutex_lock(&nready.mutex);
+		// if(nready.nready == 0)
+		// 	pthread_cond_signal(&nready.cond);
+		// nready.nready++;
+		// pthread_mutex_unlock(&nready.mutex);
+
+		int dosignal = 0;
 		pthread_mutex_lock(&nready.mutex);
-		if(nready.nready == 0)
-			pthread_cond_signal(&nready.cond);
+		dosignal = (nready.nready == 0);
 		nready.nready++;
 		pthread_mutex_unlock(&nready.mutex);
+
+		if(dosignal){
+			pthread_cond_signal(&nready.cond);
+		}
 
 		*((int *)arg) += 1;
 	}
