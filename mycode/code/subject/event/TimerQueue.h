@@ -1,6 +1,8 @@
 #ifndef TIMERQUEUE_H_INCLUDED
 #define TIMERQUEUE_H_INCLUDED
 
+typedef unsigned int DWORD
+
 #include "EventHandler.h"
 
 class CTimerQueue

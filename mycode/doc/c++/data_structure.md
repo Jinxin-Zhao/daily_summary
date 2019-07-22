@@ -2,8 +2,9 @@
 
 [1. priority_queue](#1-priority_queue)
 [2. HashMap](#2-hashmap)
-[3. DFS_BFS](#3-new_enum)
-[4. Prime_Kruskal](#4-cast_type)
+[3. Map](#3-map)
+[4. DFS_BFS](#4-dfs_bfs)
+[5. Prime_Kruskal](#5-prime_kruskal)
 
 <!-- TOC -->
 
@@ -20,9 +21,9 @@
     using namespace std;
     int main(){
     priority_queue<int> q;
-    for( int i= 0; i< 10; ++i ) q.push(i);
-    while( !q.empty() ){
-        cout<<q.top()<<" ";
+prime_kruskal++i ) q.push(i)prime_kruskal
+prime_kruskal
+prime_kruskal;
         q.pop();
     }
     //output：
@@ -167,4 +168,94 @@
 + practical application:
     - timer management;
 + theoretical analysis:
-    - internel structure: heap
+../doc/c++/data_structure.mdnel ../doc/c++/data_structure.mdre: ../doc/c++/data_structure.md
+
+# 2. HashMap
+- unordered_map
+
+# 3. Map
+- prototype:
+```cpp
+template <class Key,class T,
+          class Compare = less<key>,
+          class Alloc = alloc>
+class map{
+    ......
+};
+```
+
+
+- customized key;
+    + key cannot be pointer and can only be object ($critical$);
+    ```cpp
+   std::map<NHSymbolkey, Stru_NHSymbol>*   pmapNHSymbolInfo1
+
+   std::map<NHSymbolkey, Stru_NHSymbol*>*  pmapNHSymbolInfo2
+   
+   std::map<NHSymbolkey*, Stru_NHSymbol*>*  pmapNHSymbolInfo3
+
+   其中，pmapNHSymbolInfo1，pmapNHSymbolInfo2中使用find正常，遍历也正常；
+   pmapNHSymbolInfo3使用find查找不到对应的数据（数据已经存在，find不到，遍历可以找到）
+
+   reason：std::map<NHSymbolkey*, Stru_NHSymbol*>*  pmapNHSymbolInfo2在find的时候是根据指针(数据地址)进行查找的。而在数据insert时，数据都是new的，每次new出的地址是不一样的，在find数据时，根据数据地址找不到不同地址的相同数据。通过遍历是取出地址中内容一一比较，这样能够找到数据。
+
+   pmapNHSymbolInfo1、pmapNHSymbolInfo2两种方式都可以使用find方式查找数据，但是pmapNHSymbolInfo1中Stru_NHSymbol为对象，这样会使map占用空间比较大，pmapNHSymbolInfo2的Stru_NHSymbol为指针，存储时地址占用空间小，但是每次都是new处理来的，所有一定要记住使用完成后一定要delete，否则会出现内存泄露。
+    ```
+
+    + customized key find;
+    ```cpp
+    #include <iostream>
+    #include <map>
+    #include <string>
+
+    using namespace std;
+    //solution 1:
+    struct AttrSubKey{
+        string clientID;
+        string instrumentID;
+        int TID;
+
+        bool operator< (const AttrSubKey & rValue) const {
+            return clientID < rValue.clientID || instrumentID < rValue.instrumentID || TID < rValue.TID;
+        }
+    };
+
+    typedef map<AttrSubKey,int> T_AttrSubMap;
+
+    //solution 2 (also you can inherit unary_function):
+    class AttrSubSetLessPred : public binary_function<AttrSubKey,AttrSubKey,bool>{
+        public:
+        bool operator() (const AttrSubKey & lValue,const AttrSubKey & rValue) const {
+            return lValue.TID < rValue.TID || lValue.clientID < rValue.clientID || lValue.instrument < rValue.instrumentID;
+        }
+    }
+
+    typedef map<AttrSubKey,int,AttrSubSetLessPred> T_AttrSubMap;
+
+    int main(){
+        T_AttrSubMap mm;
+        AttrSubKey object;
+        object.clientID = "zhaojx";
+        object.instrumentID = "BTC";
+        object.TID = 20;
+        mm[object] = 1;
+
+        object.clientID = "stl";
+        object.instrumentID = "ETH";
+        object.TID = 25;
+        mm[object] = 2;
+
+        auto it = mm.find(tmp);
+        if(it != mm.end()){
+            std::cout<<"found"<<std::endl;
+        }else{
+            std::cout<<"not found"<<std:endl;
+        }
+        
+    }
+    ```
+
+ - map插入数据2中方式比较  
+    std::map<NHSymbolkey, Stru_NHSymbol*>*  pmapNHSymbolInfo
+      + pmapNHSymbolInfo->insert(std::make_pair(pNHSymbolkey, pNHSymbol));该方式的key如果出现重复，则会插入数据失败；
+      + (*pmapNHSymbolInfo)[objNHSymbolkey] = pNHSymbol;该方式的key如果出现重复则直接覆盖掉原来的数据，永远不会出现插入失败的问题。
