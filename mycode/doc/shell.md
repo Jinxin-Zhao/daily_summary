@@ -44,7 +44,7 @@ int bid5;
 
 ]# sed '/keywords/,$d' filename
 //delete rows from which contain 'keywords' at the first time  to the end of the file 
-```cpp
+
 //tmp.txt
 ]# cat tmp.txt
 co
@@ -74,24 +74,18 @@ co  //from second row,all deleted
 5
 //delete row contains 'co' and the row behind co
 
-
 ```
 
-
-]# sed '/keywords/,+2d' filename
-//delete the rows which contain keywords and the next 2 rows
-
-]# sed '/^$/d' filename
-//delete the blank row
-```
 
 ###vim editor
 + clear content of file
     - 1. gg  //jump to the top of file
     - 2. dG  //clear all contents of file
-
+    - 3. G$ //jump to the end of file
 + remove string like this:
     - d+w:  (127.9.8.7.000)---->(.98.7.000)
+    - d+$: remove the content from current location to the end of this row
+
 + find & substitute
     - :s/vivian/sky/ 替换当前行第一个 vivian 为 sky
 
@@ -111,6 +105,12 @@ co  //from second row,all deleted
     - · 使用命令：cat filename1 | tr -d “^V^M” > newfile；
 
     - · 使用命令：sed -e “s/^V^M//” filename > outputfilename。需要注意的是在1、2两种方法中，^V和^M指的是Ctrl+V和Ctrl+M。你必须要手工进行输入，而不是粘贴。
+]# sed '/keywords/,+2d' filename
+//delete the rows which contain keywords and the next 2 rows
+
+]# sed '/^$/d' filename
+//delete the blank row
+
 
 ###tar
 + param:[A c d r u x f v]
@@ -128,13 +128,7 @@ ps -fu 的每一列属性to tar files
 
     tar -rvf test.tar new_file
 
-ps -fu 的每一列属性t path
-ps -fu 的每一列属性
-ps -fu 的每一列属性ied path
-ps -fu 的每一列属性h/to/extract_dir/
-ps -fu 的每一列属性s -fu 的每一列属性 current path
-    ]# tar -xvf test.tar file1 ps -fu 的每一列属性file3
-ps -fu 的每一列属性
+    ]# tar -xvf test.tar file1 ps 
     ]# tar -cvf - files/ | ssh ps -fu 的每一列属性amazon@172.16.2.211 "tar xv -C Documents/"
 
     #merge 2 tar files
@@ -145,95 +139,8 @@ ps -fu 的每一列属性
     ]# tar -tvf  test.tar
         file1
         file2
-<!-- TOC -->
 
-[1. lamda](#1-lamda)
-[2. smart pointer](#2-smart_pointer)
-[3. new enum](#3-new_enum)
-[4. cast & type](#4-cast_type)
-[5. lvalue & rvalue](#5-lvalue_rvalue)
-[6. move & forward](#6-move_forward)
-[7. variadic template](#7-variadic_template)
-[8. tuple](#8-tuple)
-[9. functional & bind](#9-functional_bind)
-
-<!-- TOC --> test.tar <!-- TOC -->
-
-[1. lamda](#1-lamda)
-[2. smart pointer](#2-smart_pointer)
-[3. new enum](#3-new_enum)
-[4. cast & type](#4-cast_type)
-[5. lvalue & rvalue](#5-lvalue_rvalue)
-[6. move & forward](#6-move_forward)
-[7. variadic template](#7-variadic_template)
-[8. tuple](#8-tuple)
-[9. functional & bind](#9-functional_bind)
-
-<!-- TOC -->
-<!-- TOC -->
-
-[1. lamda](#1-lamda)
-[2. smart pointer](#2-smart_pointer)
-[3. new enum](#3-new_enum)
-[4. cast & type](#4-cast_type)
-[5. lvalue & rvalue](#5-lvalue_rvalue)
-[6. move & forward](#6-move_forward)
-[7. variadic template](#7-variadic_template)
-[8. tuple](#8-tuple)
-[9. functional & bind](#9-functional_bind)
-
-<!-- TOC -->列属性
-<!-- TOC -->
-
-[1. lamda](#1-lamda)
-[2. smart pointer](#2-smart_pointer)
-[3. new enum](#3-new_enum)
-[4. cast & type](#4-cast_type)
-[5. lvalue & rvalue](#5-lvalue_rvalue)
-[6. move & forward](#6-move_forward)
-[7. variadic template](#7-variadic_template)
-[8. tuple](#8-tuple)
-[9. functional & bind](#9-functional_bind)
-
-<!-- TOC -->列属性
-<!-- TOC -->
-
-[1. lamda](#1-lamda)
-[2. smart pointer](#2-smart_pointer)
-[3. new enum](#3-new_enum)
-[4. cast & type](#4-cast_type)
-[5. lvalue & rvalue](#5-lvalue_rvalue)
-[6. move & forward](#6-move_forward)
-[7. variadic template](#7-variadic_template)
-[8. tuple](#8-tuple)
-[9. functional & bind](#9-functional_bind)
-
-<!-- TOC -->les from tar <!-- TOC -->
-
-[1. lamda](#1-lamda)
-[2. smart pointer](#2-smart_pointer)
-[3. new enum](#3-new_enum)
-[4. cast & type](#4-cast_type)
-[5. lvalue & rvalue](#5-lvalue_rvalue)
-[6. move & forward](#6-move_forward)
-[7. variadic template](#7-variadic_template)
-[8. tuple](#8-tuple)
-[9. functional & bind](#9-functional_bind)
-
-<!-- TOC -->
-<!-- TOC -->
-
-[1. lamda](#1-lamda)
-[2. smart pointer](#2-smart_pointer)
-[3. new enum](#3-new_enum)
-[4. cast & type](#4-cast_type)
-[5. lvalue & rvalue](#5-lvalue_rvalue)
-[6. move & forward](#6-move_forward)
-[7. variadic template](#7-variadic_template)
-[8. tuple](#8-tuple)
-[9. functional & bind](#9-functional_bind)
-
-<!-- TOC -->test.tar --delete file1 file2
+    test.tar --delete file1 file2
     or ]# tar --delete --file test.tar file1 file2
 
     #exclude specified files from tar files
@@ -244,7 +151,7 @@ ps -fu 的每一列属性
 
 ### ps command
 + param:[A a au e N c]
-```
+```cpp
 [root@localhost test6]# ps -l
 F S UID PID PPID C PRI NI ADDR SZ WCHAN TTY TIME CMD
 4 S 0 17398 17394 0 75 0 - 16543 wait pts/0 00:00:00 bash
@@ -292,7 +199,7 @@ PID PPID PGRP SESS TPGID COMMAND
 ```
 
 ### array && if else && while
-```
+```cpp
     #a blankspace between each words and no comma
     a=( "dir_1" "dir_2" "dir_3" )
     i=0
@@ -306,10 +213,7 @@ PID PPID PGRP SESS TPGID COMMAND
         fi
         let i++
     done
-
-#######
-
-#shell判断文件夹是否存在
+    shell判断文件夹是否存在
  
 #如果文件夹不存在，创建文件夹
 if [ ! -d "/myfolder" ]; then

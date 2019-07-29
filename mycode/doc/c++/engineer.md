@@ -2,6 +2,7 @@
 
 [1. Timer](#1-Timer)
 [2. getUseFlag](#2-getUseFlag)
+[3. vsprintf](#3-vsprintf)
 
 <!-- TOC -->
 
@@ -172,3 +173,37 @@ for(int i= 0; i < R_USELESS;i++){
 }
 
 ```
+
+
+
+# 3. vsprintf
+- usage:
+        ```cpp
+        #include <stdio.h>
+        #include <stdarg.h>
+
+        char buffer[50];
+        int vspfunc(char * format, ...){
+                va_list aptr;
+                int ret;
+
+                va_start(aptr,format);
+                ret = vsprintf(buffer,format,aptr);
+                va_end(aptr);
+
+                return ret;
+        }
+
+        int main(){
+                int i = 5;
+                float f = 27.0;
+                char str[50] = "baidu.com";
+                vspfunc("%d %f %s",i,f,str);
+                printf("%s\n",buffer);
+
+                return 0;
+        }
+
+        //output
+        5 27.00000 baidu.com
+        ```
