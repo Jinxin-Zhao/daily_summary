@@ -50,10 +50,10 @@
         $ cd isl-0.16
         $ mkdir temp
         $ cd temp
-        $ ../configure --prefix=/usr/local/isl-0.16 --with-gmp-prefix=/usr/local/gmp-4.3.2 
+        $ ../configure --prefix=/usr/local/isl-0.16 --with-gmp=/usr/local/gmp-4.3.2 
 
 + compile gcc [http://www.netgull.com/gcc/releases ]
-    - sudo ./configure --prefix=/usr/local/gcc-6.1.0 --enable-threads=posix --disable-checking --enable--long-long --enable-languages=c,c++,java --disable-multilib --with-gmp=/usr/local/gmp-4.3.2/ --with-mpfr=/usr/local/mpfr-2.4.2/ --with-mpc=/usr/local/mpc-0.8.1/ --with-isl=/usr/local/isl-0.16
+    - sudo ./configure --prefix=/usr/local/gcc-6.1.0 --enable-threads=posix --disable-checking --enable--long-long --enable-languages=c,c++,java --disable-multilib --with-gmp=/usr/local/gmp-4.3.2/ --with-gmp-include=/usr/local/gmp-4.3.2/include  --with-mpfr=/usr/local/mpfr-2.4.2/ --with-mpc=/usr/local/mpc-0.8.1/ --with-isl=/usr/local/isl-0.16
 
     - sudo make
 
