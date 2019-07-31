@@ -8,69 +8,71 @@
 
 + compile these pacakges:[https://www.cnblogs.com/Hxinguan/p/5016305.html]
     - 安装gmp-4.3.2
-        $ tar -jxvf gmp-5.0.1.tar.bz2
-        $ cd gmp-5.0.1
-        $ mkdir temp
-        $ cd temp
+        + ]# tar -jxvf gmp-5.0.1.tar.bz2
+        + ]# cd gmp-5.0.1
+        + ]# mkdir temp
+        + ]# cd temp
 
         开始配置安装目录，进入temp目录后，输入以下命令：
-        $ ../configure --prefix=/usr/local/gmp-4.3.2
-        $ make
-        $ make install
+        + ]# ../configure --prefix=/usr/local/gmp-4.3.2
+        + ]# make
+        + ]# make install
 
         这样gmp就安装完成了。安装mpfr和mpc过程也差不多，只是安装的时候得加入依赖项
 
     - 安装mpfr
 　　    我这里选择的是3.1.2版本的mpfr。解压，建立临时编译目录temp,进入temp目录
 
-        $ tar -zxvf mpfr-2.4.2.tar.gz 
-        $ cd mpfr-2.4.2
-        $ mkdir temp
-        $ cd temp
-        $ ../configure --prefix=/usr/local/mpfr-2.4.2 --with-gmp=/usr/local/gmp-4.3.2
-        $ make
-        $ make install
+        + ]# tar -zxvf mpfr-2.4.2.tar.gz 
+        + ]# cd mpfr-2.4.2
+        + ]# mkdir temp
+        + ]# cd temp
+        + ]# ../configure --prefix=/usr/local/mpfr-2.4.2 --with-gmp=/usr/local/gmp-4.3.2
+        + ]# sudo make
+        + ]# sudo make install
 
-        其中--with=/usr/local/gmp-5.0.1就是依赖项， /usr/local/gmp-4.3.2是gmp的安装目录
+        其中--with-gmp=/usr/local/gmp-5.0.1就是依赖项， /usr/local/gmp-4.3.2是gmp的安装目录
 
     - 安装mpc
 　　    我选择的是1.0.2版本mpc.解压，建立临时编译目录temp,进入temp目录.
 
-        $ tar -zxvf mpc-0.8.1.tar.gz
-        $ cd mpc-0.8.1
-        $ mkdir temp
-        $ cd temp
-        $ ../configure --prefix=/usr/local/mpc-1.0.2 --with-gmp=/usr/local/gmp-4.3.2 --with-mpfr=/usr/local/mpfr-2.4.2
-        $ make
-        $ make install
+        + ]# tar -zxvf mpc-0.8.1.tar.gz
+        + ]# cd mpc-0.8.1
+        + ]# mkdir temp
+        + ]# cd temp
+        + ]# ../configure --prefix=/usr/local/mpc-1.0.2 --with-gmp=/usr/local/gmp-4.3.2 --with-mpfr=/usr/local/mpfr-2.4.2
+        + ]# make
+        + ]# make install
 
         记得后面两项的依赖项，也就是你的gmp和mpfr的安装目录
     - 安装isl
-        $ tar -zxvf isl-0.16.tar.gz
-        $ cd isl-0.16
-        $ mkdir temp
-        $ cd temp
-        $ ../configure --prefix=/usr/local/isl-0.16 --with-gmp=/usr/local/gmp-4.3.2 
+        + ]# tar -zxvf isl-0.16.tar.gz
+        + ]# cd isl-0.16
+        + ]# mkdir temp
+        + ]# cd temp
+        + ]# ../configure --prefix=/usr/local/isl-0.16 --with-gmp=/usr/local/gmp-4.3.2 
 
 + compile gcc [http://www.netgull.com/gcc/releases ]
     - sudo ./configure --prefix=/usr/local/gcc-6.1.0 --enable-threads=posix --disable-checking --enable--long-long --enable-languages=c,c++,java --disable-multilib --with-gmp=/usr/local/gmp-4.3.2/ --with-gmp-include=/usr/local/gmp-4.3.2/include  --with-mpfr=/usr/local/mpfr-2.4.2/ --with-mpc=/usr/local/mpc-0.8.1/ --with-isl=/usr/local/isl-0.16
 
     - sudo make
+error you may encount:
+        + $[error 1]$: error situation: configure: error: cannot compute suffix of object files: cannot compile
+    [solution]: export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/mpc-0.9/lib:/usr/local/gmp-5.0.1/lib:/usr/local/mpfr-3.1.0/lib
 
-    [error 1 you may encount]: error situation: configure: error: cannot compute suffix of object files: cannot compile
-    [solution]: $ exportLD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/mpc-0.9/lib:/usr/local/gmp-5.0.1/lib:/usr/local/mpfr-3.1.0/lib
-
-    [error 2]: /bin/ld: cannot find -lstdc++
+        + $[error 2]$: /bin/ld: cannot find -lstdc++
                 collect2: error: ld returned 1 exit status
     [solution]: sudo yum install glibc-static libstdc++-static
 
+        + $[error 3]$:unrecognized command line option '-V' xgcc: fatal error: no input files
+        [solution]: 真正的错误并不在这里，而是在最后一个错误出现的地方 我遇到的错误是： “collect2: ld returned 1 exit status” 这是因为我缺少了动态库文件。 我这里缺少的是lssl，就是openssl的库文件。 使用命令yum install -y openssl-devel装上就可以了。
 
-    $ source /etc/profile
+        $ source /etc/profile
     
     - sudo make install
 
 + compile c++ source code:
-    - [error]: /usr/lib/libstdc++.so.6: version `CXXABI_1.3.9' not found
+    - $[error]$: /usr/lib/libstdc++.so.6: version `CXXABI_1.3.9' not found
         [reason]: 问题是由于升级了gcc，却没有将升级后的gcc的动态库去替换老版本的gcc动态库所致。
         [solution]: strings /usr/lib64/libstdc++.so.6 | grep CXXABI
             结果如下：
@@ -79,12 +81,12 @@
                 CXXABI_1.3.2
                 CXXABI_1.3.3
                 发现最高版本只有1.3.3，没有1.3.9的。说明出现这些问题，是因为升级gcc时，生成的动态库没有替换老版本gcc的动态库。
-            - $ sudo cp /usr/local/gcc-6.1.0/lib64/libstdc++.so.6.0.22 /usr/lib64
-            - $ sudo ln -s libstdc++.so.6.0.22 libstdc++.so
-            - $ sudo ln -s libstdc++.so.6.0.22 libstdc++.so.6
+            - ]# sudo cp /usr/local/gcc-6.1.0/lib64/libstdc++.so.6.0.22 /usr/lib64
+            - ]# sudo ln -s libstdc++.so.6.0.22 libstdc++.so
+            - ]# sudo ln -s libstdc++.so.6.0.22 libstdc++.so.6
 
 + SRAM related:
-    - 现在我们知道了动态与静态函数库，也知道了当前的Linux大多是将函数库做成动态函数库，下面来讨论增加函数库读取性能的方法。我们知道，内存的访问速度是硬盘的好几倍，所以，如果将常用的动态函数库加载到内存中（高速缓存，cache），当软件套件要采用动态函数库时，就不需要重新从硬盘里读出，这样就可以提高动态函数库的读取速度。这个时候需要ldconfig与 /etc/ld.so.conf的帮助。
+    - 现在我们知道了动态与静态函数库，也知道了当前的Linux大多是将函数库做成动态函数库，下面来讨论增加函数 法。我们知道，内存的 的好几倍，所以，如果 数库加载到内存中（高 ，当软件套件要采用动态函数库时，就不需要重新从硬盘里读出，这样就可以提高动态函数库的读取速度。这个时候需要ldconfig与 /etc/ld.so.conf的帮助。
 
     将动态函数库加载到高速缓存（cache）中的过程如下：
 
