@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/zhaojx/CLionProjects/Algorithm/Fibonacci.h
+iostream
+-
+vector
+-
+
+/home/zhaojx/CLionProjects/Algorithm/algorithm.cc
+Fibonacci.h
+/home/zhaojx/CLionProjects/Algorithm/Fibonacci.h
+
