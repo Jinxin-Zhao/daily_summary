@@ -48,8 +48,23 @@ int Fibonacci::getFibnacci_matrix(int n){
 }
 
 R Fibonacci::getMultiMatrix(R m1,R m2){
-
-
+    R res;
+    Itemtype n1;
+    for(int i = 0;i < m1.size();i++){
+        for(int j = 0;j < m1.size();j++){
+            int e1 = 0;
+            for(int k = 0;k < m2.size();k++){
+               e1 += m1[i][k] * m2[k][j];
+            }
+            n1.push_back(e1);
+        }
+    }
+    int s = n1.size();
+    Itemtype n2(n1.begin(),n1.end() - 3);
+    res.push_back(n1);
+    res.push_back(n2);
+    int ss = res.size();
+    return res;
 }
 R Fibonacci::getMatrixPower(R & matrix,int stage){
     R res;
@@ -70,7 +85,7 @@ R Fibonacci::getMatrixPower(R & matrix,int stage){
         if( (stage & 1) == 1){
             res = getMultiMatrix(res,temp);
         }
-            temp = getMultiMatrix(temp,temp);
+        temp = getMultiMatrix(temp,temp);
     }
     return res;
 }
