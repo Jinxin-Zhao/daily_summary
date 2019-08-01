@@ -6,7 +6,10 @@
 #include <iostream>
 #include <vector>
 
-typedef std::vector<std::vector<int>>  SArray;
+typedef std::vector<std::vector<int>>  R; //SArray;
+typedef std::vector<int>  Itemtype;
+
+//typedef int (*R)[2];
 
 class Fibonacci{
 public:
@@ -32,11 +35,13 @@ public:
     int getFibnacci_matrix(int n);
 
 private:
-    int ** getMultiMatrix(int ** m1,int ** m2);
-    int ** getMatrixPower(int ** matrix,int dimension);
+    R getMultiMatrix(R m1,R m2);
+    R getMatrixPower(R & matrix,int dimension);
 
 private:
-    int *  m_array[2];
+    R      m_array;
+    Itemtype m_item_array_f;
+    Itemtype m_item_array_s;
     int    m_row;
     int    m_column;
 };
