@@ -8,6 +8,7 @@ int main() {
     std::cout<<"f(n): "<<res_n<<std::endl;
 
     //test matrix method
-    fibonacci.getFibnacci_matrix(4);
+    int res = fibonacci.getFibnacci_matrix(6);
+    std::cout<<"f(n): "<<res<<std::endl;
     return 0;
 }
