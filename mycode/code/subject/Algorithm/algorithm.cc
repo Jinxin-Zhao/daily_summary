@@ -1,16 +1,14 @@
 #include "Fibonacci.h"
 
 Fibonacci::Fibonacci(){
-    //m_array = (int**)malloc(2*sizeof(int *));
-    //(*m_array) = (int *)malloc(2*sizeof(int));
-    m_array[0] = new int[2];
-    m_array[1] = new int[2];
-    m_array[0][0] = 1;
-    m_array[0][1] = 1;
-    m_array[1][0] = 1;
-    m_array[1][1] = 0;
-    m_row = sizeof(m_array)/sizeof(int *);
-    m_column = sizeof(*m_array)/sizeof(int);
+    m_item_array_f.push_back(1);
+    m_item_array_f.push_back(1);
+    m_array.push_back(m_item_array_f);
+    m_item_array_s.push_back(1);
+    m_item_array_s.push_back(0);
+    m_array.push_back(m_item_array_s);
+    m_row = m_array.size();
+    m_column = m_item_array_f.size();
 }
 
 int Fibonacci::getFibnacci_iteraton(int n){
@@ -45,23 +43,53 @@ int Fibonacci::getFibnacci_matrix(int n){
         (n == 1) ? std::cout<<"1"<<std::endl : std::cout<<"1 1"<<std::endl;
         return 1;
     }
-    int ** res = getMatrixPower(m_array,n-2);
+    R res = getMatrixPower(m_array,n-2);
     return res[0][0] + res[1][0];
 }
 
-int ** Fibonacci::getMultiMatrix(int ** m1,int ** m2){
-
+///private function
+R Fibonacci::getMultiMatrix(R m1,R m2){
+    R res;
+    Itemtype n1;
+    for(int i = 0;i < m1.size();i++){
+        for(int j = 0;j < m1.size();j++){
+            int e1 = 0;
+            for(int k = 0;k < m2.size();k++){
+                e1 += m1[i][k] * m2[k][j];
+            }
+            n1.push_back(e1);
+        }
+    }
+    int s = n1.size();
+    Itemtype n2(n1.begin()+2,n1.end());
+    n1.pop_back();
+    n1.pop_back();
+    res.push_back(n1);
+    res.push_back(n2);
+    int ss = res.size();
+    return res;
 }
-int ** Fibonacci::getMatrixPower(int ** matrix,int dimension){
-    int  res[m_row][m_column];
+R Fibonacci::getMatrixPower(R & matrix,int stage){
+    R res;
     //init E matrix
-    for(int i = 0;i < m_row;i++)
+    for(int i = 0;i < m_row;i++){
+        Itemtype item;
         for(int j = 0;j < m_column; j++){
             if(i == j){
-                res[i][j] = 1;
+                item.push_back(1);
+            }else{
+                item.push_back(0);
             }
         }
-    int *p = res[0];
-    //std::cout<<"res.size: "<<res.size()<<" "<<res[0].size()<<std::endl;
-        return &p;
+        res.push_back(item);
+    }
+    R temp = matrix;
+    std::cout<<temp[0][0]<<" "<<temp[0][1]<<" "<<temp[1][0]<<" "<<temp[1][1]<<std::endl;
+    for(;stage != 0; stage >>= 1){
+        if( (stage & 1) == 1){
+            res = getMultiMatrix(res,temp);
+        }
+        temp = getMultiMatrix(temp,temp);
+    }
+    return res;
 }
