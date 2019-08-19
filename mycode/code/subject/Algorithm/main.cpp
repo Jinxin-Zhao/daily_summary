@@ -1,6 +1,9 @@
 #include <iostream>
 #include "Fibonacci.h"
 #include "Quickselect.h"
+#include "LinkList.h"
+#include "LinklistStack.h"
+#include "LinklistQueue.h"
 
 int main() {
     //test Fibonacci
@@ -23,5 +26,46 @@ int main() {
     for(int j = 0; j < num_array; j++){
         std::cout<<array[j]<<" ";
     }
+
+    ///////////
+    std::cout<<std::endl;
+    LinkList ll;
+    Node *head=ll.creat(10);
+    ll.print(head);
+    /*O(1)策略删除一个给定元素*/
+    Node *del = ll.locateNode(head,5);
+    ll.deleteNode(head,del);
+    ll.print(head);
+
+    /*O(n)策略删除结尾元素*/
+    Node *del2 = ll.locateNode(head,9);
+    ll.deleteNode(head,del2);
+
+    std::cout<<std::endl;
+    ll.print(head);
+
+    ////////
+    StackByLinklist sta;
+    sta.push(1);
+    sta.push(2);
+    sta.push(3);
+
+    std::cout<<"len: "<<sta.stacklen()<<std::endl;
+    sta.pop();
+    std::cout<<"top: "<<sta.top()<<std::endl;
+    std::cout<<"len: "<<sta.stacklen()<<std::endl;
+    ///Queue
+    QueueByLinklist que;
+    que.EnQueueFront(1);
+    que.EnQueueFront(2);
+    que.EnQueueFront(3);
+    que.EnQueueFront(4);
+    //
+    que.DeQueueBack();
+    std::cout<<"front: "<<que.Front()<<std::endl;
+    std::cout<<"rear: "<<que.Back()<<std::endl;
+    std::cout<<"len is : "<<que.queuelength()<<std::endl;
+
+
     return 0;
 }
