@@ -1,5 +1,8 @@
 #include "Fibonacci.h"
 #include "Quickselect.h"
+#include "LinkList.h"
+#include "LinklistStack.h"
+#include "LinklistQueue.h"
 
 Fibonacci::Fibonacci(){
     m_item_array_f.push_back(1);
@@ -95,20 +98,7 @@ R Fibonacci::getMatrixPower(R & matrix,int stage){
     return res;
 }
 
-/////
-//冒泡排序（晚些时候将修正为插入排序）
-/*void insert_sort(int array[], int left, int loop_times, int compare_times)
-{
-	for (int i = 0; i < loop_times; i++)
-	{
-		for (int j = 0; j < compare_times - i; j++)
-		{
-			if (array[left + j] > array[left + j + 1])
-				swap(array[left + j], array[left + j + 1]);
-		}
-	}
-}*/
-
+/******************************QuickSelect Algorithm O(n)***************************/
 /*
 //插入排序算法伪代码
 INSERTION-SORT(A)                              cost    times
@@ -238,3 +228,200 @@ int Quickselect::q_select(int array[], int left, int right, int k)
         return q_select(array, i + 1, right, k - m);
 }
 
+/******************************Linklist Algorithm: delete specific node in O(1)***************************/
+
+Node *LinkList::creat(int num)
+{
+    Node *head=new Node();
+    head->data=0;
+    head->next=nullptr;
+    for(int i=num;i>0;--i)
+    {
+        Node *temp=new Node();
+        temp->data=i;
+        temp->next=nullptr;
+        temp->next=head->next;
+        head->next=temp;
+    }
+    return head;
+}
+Node *LinkList::findLastPreNode(Node *head) {
+    while (head->next->next) {
+        head = head->next;
+    }
+    return head;
+
+}
+Node * LinkList::locateNode(Node * head,int k){
+    Node * phead = head;
+    while(k--){
+        phead = phead->next;
+    }
+    return phead;
+}
+void LinkList::deleteNode(Node *head,Node *del)
+{
+    if(del->next!=nullptr)
+    {
+        //normal scenario costs: O(1)
+        Node *p = del->next;
+        del->data = del->next->data;
+        del->next = del->next->next;
+        delete p;
+    }
+    else
+    {
+        //the node to be deleted is the last node,this scenario costs: O(n)
+        Node *pre = findLastPreNode(head);
+        delete pre->next;
+        pre->next=nullptr;
+    }
+
+    //average costs: ( O(1) * (n-1) + O(n) * 1 ) / n = O(1)
+}
+void LinkList::print(Node *head)
+{
+    while(head != nullptr)
+    {
+        std::cout<<head->data<<" ";
+        head=head->next;
+    }
+    std::cout<<std::endl;
+}
+
+/******************************StackByLinklist Algorithm: push/pop specific node in O(1)***************************/
+StackByLinklist::~StackByLinklist(){
+    Node * pCurrent = m_head.next;
+    Node * pNext = nullptr;
+    if(pCurrent != &m_head){
+        pNext = pCurrent->next;
+        delete pCurrent;
+        pCurrent = pNext;
+    }
+}
+void StackByLinklist::push(int elem){
+    Node * pNew = new Node();
+    pNew->key = elem;
+    pNew->next = m_head.next;
+    m_head.next = pNew;
+}
+
+void StackByLinklist::pop() {
+    if(m_head.next == &m_head){
+        return;
+    }
+    Node *del = m_head.next;
+    m_head.next = del->next;
+    delete del;
+}
+
+int StackByLinklist::top() const{
+    if(m_head.next == &m_head){
+        std::cout<<"empty list"<<std::endl;
+        return -1;
+    }
+    return m_head.next->key;
+}
+
+int  StackByLinklist::stacklen(){
+    if(m_head.next == &m_head){
+        return 0;
+    }
+    int count = 0;
+    Node * p = m_head.next;
+    while(p != &m_head){
+        count++;
+        p = p->next;
+    }
+    return count;
+}
+
+/******************************QueueByLinklist Algorithm: push/pop specific node from two sides in O(1)***************************/
+QueueByLinklist::QueueByLinklist(){
+    m_head.next = &m_head;
+    m_front = m_rear = &m_head;
+}
+QueueByLinklist::~QueueByLinklist(){
+    Node *pCur = m_head.next;
+    Node *pNext = nullptr;
+    if(pCur != &m_head){
+        pNext = pCur->next;
+        delete pCur;
+        pCur = pNext;
+    }
+    m_rear = &m_head;
+}
+
+void QueueByLinklist::EnQueueBack(int elem){
+    Node * pNew = new Node();
+    pNew->key = elem;
+    m_rear->next = pNew;
+    pNew->pre = m_rear;
+    pNew->next = &m_head;
+    m_rear = pNew;
+}
+int QueueByLinklist::DeQueueFront(){
+    if(m_front == m_rear){
+        std::cout<<"empty queue"<<std::endl;
+        return -1;
+    }
+    Node * del = m_front->next;
+    m_front->next = del->next;
+    del->next->pre = m_front;
+    //critical
+    if(del == m_rear){
+        m_rear = m_front;
+    }
+    delete del;
+}
+//
+void QueueByLinklist::EnQueueFront(int elem){
+    Node * pNew = new Node();
+    pNew->key = elem;
+    Node * Next = m_front->next;
+    Next->pre  = pNew;
+    pNew->next = Next;
+    m_front->next = pNew;
+    pNew->pre = m_front;
+}
+int QueueByLinklist::DeQueueBack(){
+    if(m_rear == m_front){
+        std::cout<<"empty queue"<<std::endl;
+        return -1;
+    }
+    Node * del = m_rear;
+    Node * pNewrear = m_rear->pre;
+    pNewrear->next = m_front;
+    if(m_front == pNewrear){
+        m_rear = m_front;
+    }
+    delete del;
+    m_rear = pNewrear;
+}
+int QueueByLinklist::Front() const{
+    if(m_front == m_rear){
+        std::cout<<"empty queue"<<std::endl;
+        return -1;
+    }
+    return m_front->next->key;
+}
+int QueueByLinklist::Back() const{
+    if(m_front == m_rear){
+        std::cout<<"empty queue"<<std::endl;
+        return -1;
+    }
+    return m_rear->key;
+}
+
+int QueueByLinklist::queuelength(){
+    if(m_front == m_rear){
+        std::cout<<"empty queue"<<std::endl;
+        return -1;
+    }
+    int count = 0;
+    Node * p = m_front->next;
+    while(p != &m_head){
+        count++;
+        p = p->next;
+    }
+}
