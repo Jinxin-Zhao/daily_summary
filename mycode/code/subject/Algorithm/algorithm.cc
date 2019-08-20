@@ -3,6 +3,7 @@
 #include "LinkList.h"
 #include "LinklistStack.h"
 #include "LinklistQueue.h"
+#include "Heap.h"
 
 Fibonacci::Fibonacci(){
     m_item_array_f.push_back(1);
@@ -307,7 +308,8 @@ void StackByLinklist::push(int elem){
 }
 
 void StackByLinklist::pop() {
-    if(m_head.next == &m_head){
+    if(empty()){
+        std::cout<<"empty stack"<<std::endl;
         return;
     }
     Node *del = m_head.next;
@@ -316,14 +318,14 @@ void StackByLinklist::pop() {
 }
 
 int StackByLinklist::top() const{
-    if(m_head.next == &m_head){
+    if(empty()){
         std::cout<<"empty list"<<std::endl;
         return -1;
     }
     return m_head.next->key;
 }
 
-int  StackByLinklist::stacklen(){
+int  StackByLinklist::length(){
     if(m_head.next == &m_head){
         return 0;
     }
@@ -335,6 +337,13 @@ int  StackByLinklist::stacklen(){
     }
     return count;
 }
+bool StackByLinklist::empty() const{
+    if(m_head.next == &m_head){
+        return true;
+    }
+    return false;
+}
+
 
 /******************************QueueByLinklist Algorithm: push/pop specific node from two sides in O(1)***************************/
 QueueByLinklist::QueueByLinklist(){
@@ -357,11 +366,11 @@ void QueueByLinklist::EnQueueBack(int elem){
     pNew->key = elem;
     m_rear->next = pNew;
     pNew->pre = m_rear;
-    pNew->next = &m_head;
+    pNew->next = m_front;
     m_rear = pNew;
 }
 int QueueByLinklist::DeQueueFront(){
-    if(m_front == m_rear){
+    if(empty()){
         std::cout<<"empty queue"<<std::endl;
         return -1;
     }
@@ -379,13 +388,20 @@ void QueueByLinklist::EnQueueFront(int elem){
     Node * pNew = new Node();
     pNew->key = elem;
     Node * Next = m_front->next;
+    if(Next == &m_head){
+        m_rear = pNew;
+        m_front->next = pNew;
+        m_rear->pre = m_front;
+        m_rear->next = m_front;
+        return;
+    }
     Next->pre  = pNew;
     pNew->next = Next;
     m_front->next = pNew;
     pNew->pre = m_front;
 }
 int QueueByLinklist::DeQueueBack(){
-    if(m_rear == m_front){
+    if(empty()){
         std::cout<<"empty queue"<<std::endl;
         return -1;
     }
@@ -399,7 +415,7 @@ int QueueByLinklist::DeQueueBack(){
     m_rear = pNewrear;
 }
 int QueueByLinklist::Front() const{
-    if(m_front == m_rear){
+    if(empty()){
         std::cout<<"empty queue"<<std::endl;
         return -1;
     }
@@ -413,8 +429,8 @@ int QueueByLinklist::Back() const{
     return m_rear->key;
 }
 
-int QueueByLinklist::queuelength(){
-    if(m_front == m_rear){
+int QueueByLinklist::length(){
+    if(empty()){
         std::cout<<"empty queue"<<std::endl;
         return -1;
     }
@@ -424,4 +440,74 @@ int QueueByLinklist::queuelength(){
         count++;
         p = p->next;
     }
+    return count;
+}
+
+bool QueueByLinklist::empty() const{
+    if(m_front == m_rear){
+        return true;
+    }
+    return false;
+}
+
+/******************************Heap Algorithm: optimized insertion***************************/
+MaxHeap::MaxHeap(int * ar,int len){
+    m_array = new int[len];
+    for(int i = 0; i < len; ++i){
+        m_array[i] = ar[i];
+    }
+}
+MaxHeap::~MaxHeap(){
+    delete [] m_array;
+}
+
+int MaxHeap::parent(int index){
+    return m_array[index/2];
+}
+int MaxHeap::lchild(int index){
+    return m_array[index*2+1];
+}
+int MaxHeap::rchild(int index){
+    return m_array[index*2+2];
+}
+
+//from the first node which is not leaf
+void MaxHeap::maxheapify(int * a,int index,int len){
+    int lindex = 2*index + 1;
+    int rindex = 2*index + 2;
+    int largest = index;
+    while(true){
+        if(lindex < len && m_array[lindex] > m_array[index]){
+            largest = lindex;
+        }
+        if(rindex < len && m_array[rindex] > m_array[largest]){
+            largest = rindex;
+        }
+        if(index != largest){
+            swap(&m_array[index],&m_array[largest]);
+        }else{
+            break;
+        }
+        index = largest;
+        lindex = 2 * index + 1;
+        rindex = 2 * index + 2;
+    }
+}
+void MaxHeap::buildmaxheap(int * a,int len){
+    for(int i = len/2; i >= 0; i--){
+        maxheapify(a,i,len);
+    }
+}
+
+void MaxHeap::printheap(int *a,int len){
+    for(int i = 0; i < len; ++i){
+        std::cout<<m_array[i]<<" ";
+    }
+    std::cout<<std::endl;
+}
+
+void MaxHeap::swap(int * a,int * b){
+    int temp = *a;
+    *a = *b;
+    *b = temp;
 }
