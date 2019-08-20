@@ -12,7 +12,8 @@ public:
     int DeQueueBack();
     int Front() const;
     int Back() const;
-    int queuelength();
+    int length();
+    bool empty() const;
 
 private:
     struct Node{
