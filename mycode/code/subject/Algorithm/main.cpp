@@ -44,27 +44,31 @@ int main() {
     std::cout<<std::endl;
     ll.print(head);
 
-    ////////
+    ////////stack by linklist
     StackByLinklist sta;
     sta.push(1);
     sta.push(2);
     sta.push(3);
 
-    std::cout<<"len: "<<sta.stacklen()<<std::endl;
+    std::cout<<"stack len: "<<sta.length()<<std::endl;
     sta.pop();
-    std::cout<<"top: "<<sta.top()<<std::endl;
-    std::cout<<"len: "<<sta.stacklen()<<std::endl;
-    ///Queue
+    std::cout<<"stack top: "<<sta.top()<<std::endl;
+    std::cout<<"stack len: "<<sta.length()<<std::endl;
+    ///deqeue by linklist
     QueueByLinklist que;
     que.EnQueueFront(1);
     que.EnQueueFront(2);
     que.EnQueueFront(3);
     que.EnQueueFront(4);
+    que.EnQueueBack(9);
+    que.EnQueueBack(8);
+    que.EnQueueBack(4);
+    que.DeQueueFront();
     //
     que.DeQueueBack();
-    std::cout<<"front: "<<que.Front()<<std::endl;
-    std::cout<<"rear: "<<que.Back()<<std::endl;
-    std::cout<<"len is : "<<que.queuelength()<<std::endl;
+    std::cout<<"queue front: "<<que.Front()<<std::endl;
+    std::cout<<"queue rear: "<<que.Back()<<std::endl;
+    std::cout<<"queue len: "<<que.length()<<std::endl;
 
 
     return 0;
