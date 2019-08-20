@@ -4,6 +4,7 @@
 #include "LinkList.h"
 #include "LinklistStack.h"
 #include "LinklistQueue.h"
+#include "Heap.h"
 
 int main() {
     //test Fibonacci
@@ -69,7 +70,9 @@ int main() {
     std::cout<<"queue front: "<<que.Front()<<std::endl;
     std::cout<<"queue rear: "<<que.Back()<<std::endl;
     std::cout<<"queue len: "<<que.length()<<std::endl;
-
-
+    //
+    int ar [] = {1,2,3,4,5,6,7,8,9};
+    MaxHeap  mh(ar,9);
+    mh.buildmaxheap(ar,9);
     return 0;
 }
