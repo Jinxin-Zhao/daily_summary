@@ -497,6 +497,8 @@ void MaxHeap::buildmaxheap(int * a,int len){
     for(int i = len/2; i >= 0; i--){
         maxheapify(a,i,len);
     }
+    std::cout<<"max heap is : ";
+    printheap(m_array,len);
 }
 
 void MaxHeap::printheap(int *a,int len){
