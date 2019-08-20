@@ -10,12 +10,13 @@ public:
     void push(int elem);
     void pop();
     int top() const;
+    bool empty() const;
 
     //
     //void destroystack(StackByLinklist & s);
     //void clearstack(StackByLinklist & s);
     //bool stackempty(StackByLinklist &s);
-    int  stacklen();
+    int  length();
 
     //void traverse(StackByLinklist &s);
 
