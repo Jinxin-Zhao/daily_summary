@@ -1,10 +1,11 @@
 <!-- TOC -->
 
 [1. priority_queue](#1-priority_queue)
-[2. HashMap](#2-hashmap)
-[3. Map](#3-map)
-[4. DFS_BFS](#4-dfs_bfs)
-[5. Prime_Kruskal](#5-prime_kruskal)
+[2. heap](#2-heap)
+[3. HashMap](#3-hashmap)
+[4. Map](#4-map)
+[5. DFS_BFS](#5-dfs_bfs)
+[6. Prime_Kruskal](#6-prime_kruskal)
 
 <!-- TOC -->
 
@@ -170,10 +171,178 @@ prime_kruskal;
 + theoretical analysis:
 ../doc/c++/data_structure.mdnel ../doc/c++/data_structure.mdre: ../doc/c++/data_structure.md
 
-# 2. HashMap
+# 2. heap
++  buildMaxHeap方法的流程简单概括起来就是一句话，从A.length / 2一直到根结点进行maxHeapify调整,花费时间 O(n)
+
+```cpp
+class MaxHeap{
+public:
+    MaxHeap(int * ar,int len);
+    ~MaxHeap();
+
+    int parent(int index);
+    int lchild(int index);
+    int rchild(int index);
+
+    //from the first node which is not leaf
+    void maxheapify(int * a,int index,int len);
+    void buildmaxheap(int * a,int len); //O(n)
+    void printheap(int *a,int len);
+    void swap(int * a,int * b);
+
+    void dynamicbuildmaxheap(int key); //O(nlgn)
+    void heapincresekey(int index,int key);
+    void printdyheap();
+
+private:
+    int *m_array;
+    int m_len;
+    std::vector<int>  m_vec;
+    int m_heapsize;
+};
+
+
+
+MaxHeap::MaxHeap(int * ar,int len){
+    m_array = new int[len];
+    for(int i = 0; i < len; ++i){
+        m_array[i] = ar[i];
+    }
+}
+MaxHeap::~MaxHeap(){
+    delete [] m_array;
+}
+
+int MaxHeap::parent(int index){
+    return m_array[index/2];
+}
+int MaxHeap::lchild(int index){
+    return m_array[index*2+1];
+}
+int MaxHeap::rchild(int index){
+    return m_array[index*2+2];
+}
+
+//from the first node which is not leaf
+void MaxHeap::maxheapify(int * a,int index,int len){
+    int lindex = 2*index + 1;
+    int rindex = 2*index + 2;
+    int largest = index;
+    while(true){
+        if(lindex < len && m_array[lindex] > m_array[index]){
+            largest = lindex;
+        }
+        if(rindex < len && m_array[rindex] > m_array[largest]){
+            largest = rindex;
+        }
+        if(index != largest){
+            swap(&m_array[index],&m_array[largest]);
+        }else{
+            break;
+        }
+        index = largest;
+        lindex = 2 * index + 1;
+        rindex = 2 * index + 2;
+    }
+}
+void MaxHeap::buildmaxheap(int * a,int len){
+    for(int i = len/2; i >= 0; i--){
+        maxheapify(a,i,len);
+    }
+    std::cout<<"max heap is : ";
+    printheap(m_array,len);
+}
+
+void MaxHeap::printheap(int *a,int len){
+    for(int i = 0; i < len; ++i){
+        std::cout<<m_array[i]<<" ";
+    }
+    std::cout<<std::endl;
+}
+
+void MaxHeap::swap(int * a,int * b){
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void MaxHeap::dynamicbuildmaxheap(int key){
+    m_vec.push_back(key);
+    m_heapsize++;
+    int last_index = m_vec.size() - 1;
+    heapincresekey(last_index,key);
+}
+
+void MaxHeap::heapincresekey(int index,int key){
+    int parentindex = (index - 1)/2;
+    while(parentindex >= 0 && m_vec[parentindex] < m_vec[index]){
+        swap(&m_vec[parentindex],&m_vec[index]);
+        index = parentindex;
+        parentindex = (index-1)/2;
+    }
+}
+
+void MaxHeap::printdyheap(){
+    for(int i = 0; i < m_vec.size(); ++i){
+        std::cout<<m_vec[i]<<" ";
+    }
+    std::cout<<std::endl;
+}
+
+int main(){
+    int ar [] = {1,2,3,4,5,6,7,8,9};
+    MaxHeap  mh(ar,9);
+    mh.buildmaxheap(ar,9);
+        //build heap dynamically
+    for(int i = 1; i < 11; i += 2){
+        mh.dynamicbuildmaxheap(i);
+    }
+    mh.printdyheap();
+    return 0;
+}
+```
+
++ analysis:
+    + conclusion 1:
+        -  粗粗来看前面buildmaxheap的时间复杂度，每次maxHeapify调整需要的时间为lg(n), 总共要遍历的元素有N/2个，所以大致的运行时间复杂度为O(nlgn);
+        - 如果我们更进一步分析，会发现它的实际情况会更理想一点。首先一个，我们从第a.length/2个元素开始执行maxHeapify，最开始这一层的元素只有一个子结点，也就是说，就算要调整，顶多一次就搞定了，不需要走lgn这么多步。
+        - 我们看这棵二叉树，它必须保证每一层填满之后才能去填充下一层。而且，如果从根结点开始计数，往下第i层的元素如果不是最后一层的话，这一层的元素数量为$2^i$。这样，对于一棵高为h的二叉树，它的所有结点数目就等于前面完全填满的层元素加上最下面一层的元素。
+        - 作为一棵高度为h的树，最下面一层的元素最少可以是1，最大可以是把整层填充满，也就是$2^{h+1}$。这样，他们求和的结果就是最少为$2^h$, 最大为 $2^{h+1}$.
+        - 所以假设堆的元素数量为n的话，我们就可以推出：
+    $$2^h <= n < 2^{h+1} -1 < 2^{h+1}$$
+    $$h <= lgn < h+1$$
+        - 我们可以发现一个n个元素的树，它的高度相当于|_lgn_|（向下取整）
+    + conclusion 2:
+        - 假设高度为1的那一层他们的元素个数为k，那么他们的访问时间复杂度为O(k)。根据前面的分析，我们还发现一个情况，就是如果从根结点开始计数，往下第i层的元素如果不是最后一层的话，这一层的元素数量为$2^i$。正好这个第i层就相当于树的总高度减去当前层的结点的高度。假设第i层的高度为h，那么也就是i = lgn - h。
+        - 第i层的元素个数：
+        $$2^{height - hi - 1} = 2^{lgn - hi - 1} = \frac{n}{2^{hi+1}}$$
+        - total time:
+        $$\sum_{hi=0}^{|lgn|}\frac{n}{2^{hi+1}}O(h) = O(n\sum_{hi=0}^{|lgn|}\frac{h}{2^h})$$
+        $$\because F(n) = \sum_{h=0}^n \frac{h}{2^h} = (\frac{1}{2^1} + \frac{2}{2^2} + ... + \frac{n}{2^n})$$
+        $$2F(n)=\sum_{h=0}^n \frac{h}{2^{h-1}} = (\frac{1}{2^0} + \frac{2}{2^1} + ... + \frac{n}{2^{n-1}})$$
+        $$F(n) = 2F(n) - F(n)$$
+        $$F(n) = 1 + \frac{1}{2^1}+\frac{1}{2^2} + ... + \frac{1}{2^{n-1}} - \frac{n}{2^n}$$
+        $$F(n) = 1 + (1 - \frac{1}{2}^{n-1})- \frac{n}{2^n}$$
+        $$\lim_{n \to \infty}F(n) = 2$$
+        $$\therefore \sum_{hi=0}^{|lgn|}\frac{n}{2^{hi+1}}O(h) = O(n\sum_{hi=0}^{\infty}\frac{h}{2^h})=O(n)$$
+
++ dynamicbuildmaxheap方法是动态建立最大堆的方法，在不知道有多少元素的情况下，动态增加构建堆；
+    - 1. 首先增加堆的长度，在最末尾的地方加入最新插入的元素。
+    - 2. 比较当前元素和它的父结点值，如果比父结点值大，则交换两个元素，否则返回。
+    - 3. 重复步骤2.
+    - 我们先看最理想的情况，假设每次插入的元素都是严格递减的，那么每个元素只需要和它的父结点比较一次。那么其最优情况就是n。
+    - 对于最坏的情况下，每次新增加一个元素都需要调整到它的根结点。而这个长度为lgn。那么它的时间复杂度为如下公式：
+    $$\sum_{i=1}^{n}\Theta(|lgi|) = lg(n!)$$
+    according to Stirling’s formula:
+    $$\lim_{n \to \infty}\frac{n!}{\sqrt{2n\pi}\left(\frac{n}{e}\right)^n} = 1(等价无穷大)$$
+    $$\lim_{n \to \infty}\frac{log(n!)}{log(n^n)} = \lim_{n \to \infty}\frac{log(\sqrt{2n\pi}\left(\frac{n}{e}\right)^n)}{nlog(n)}=\lim_{n \to \infty}\frac{\frac{1}{2}log(2\pi)+\frac{1}{2}log(n)+nlog(n)-nlog(e)}{nlog(n)}$$
+    $$=\lim_{n \to \infty}(\frac{\frac{1}{2}log(2\pi)}{nlog(n)} + \frac{1}{2n} + 1 - \frac{1}{ln(n)}) = 1 $$
+    $$\therefore \sum_{i=1}^{n}\Theta(|lgi|) = lg(n!) = nlg(n)$$
+
+# 3. HashMap
 - unordered_map
 
-# 3. Map
+# 4. Map
 - prototype:
 ```cpp
 template <class Key,class T,
