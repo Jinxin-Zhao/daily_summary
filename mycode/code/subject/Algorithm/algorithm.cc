@@ -456,6 +456,7 @@ MaxHeap::MaxHeap(int * ar,int len){
     for(int i = 0; i < len; ++i){
         m_array[i] = ar[i];
     }
+    m_heapsize = 0;
 }
 MaxHeap::~MaxHeap(){
     delete [] m_array;
@@ -512,4 +513,27 @@ void MaxHeap::swap(int * a,int * b){
     int temp = *a;
     *a = *b;
     *b = temp;
+}
+
+void MaxHeap::dynamicbuildmaxheap(int key){
+    m_vec.push_back(key);
+    m_heapsize++;
+    int last_index = m_vec.size() - 1;
+    heapincresekey(last_index,key);
+}
+
+void MaxHeap::heapincresekey(int index,int key){
+    int parentindex = (index - 1)/2;
+    while(parentindex >= 0 && m_vec[parentindex] < m_vec[index]){
+        swap(&m_vec[parentindex],&m_vec[index]);
+        index = parentindex;
+        parentindex = (index-1)/2;
+    }
+}
+
+void MaxHeap::printdyheap(){
+    for(int i = 0; i < m_vec.size(); ++i){
+        std::cout<<m_vec[i]<<" ";
+    }
+    std::cout<<std::endl;
 }
