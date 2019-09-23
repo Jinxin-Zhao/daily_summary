@@ -86,6 +86,11 @@ co  //from second row,all deleted
     - d+w:  (127.9.8.7.000)---->(.98.7.000)
     - d+$: remove the content from current location to the end of this row
 
++ combo keys:
+    - "C": remove content after current cursor and enter into 'insert' mode;
+    - "b": jump to forehead of current keyword;
+    - "A": jump to the end of current row and enter into 'insert' mode;
+
 + find & substitute
     - :s/vivian/sky/ 替换当前行第一个 vivian 为 sky
 
