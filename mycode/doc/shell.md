@@ -83,7 +83,7 @@ co  //from second row,all deleted
     - 2. dG  //clear all contents of file
     - 3. G$ //jump to the end of file
 + remove string like this:
-    - d+w:  (127.9.8.7.000)---->(.98.7.000)
+    - d+w:  (127.9.8.7.000)---->(.9.8.7.000)
     - d+$: remove the content from current location to the end of this row
 
 + combo keys:

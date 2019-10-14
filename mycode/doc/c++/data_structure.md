@@ -1,11 +1,12 @@
 <!-- TOC -->
 
-[1. priority_queue](#1-priority_queue)
-[2. heap](#2-heap)
+[1. Priority_queue](#1-priority_queue)
+[2. Heap](#2-heap)
 [3. HashMap](#3-hashmap)
 [4. Map](#4-map)
 [5. DFS_BFS](#5-dfs_bfs)
-[6. Prime_Kruskal](#6-prime_kruskal)
+[6. Prime_Kruskal](#6-Prime_Kruskal)
+[7. Floyd_Dijkstra](#7-Floyd_Dijkstra)
 
 <!-- TOC -->
 
@@ -428,3 +429,9 @@ class map{
     std::map<NHSymbolkey, Stru_NHSymbol*>*  pmapNHSymbolInfo
       + pmapNHSymbolInfo->insert(std::make_pair(pNHSymbolkey, pNHSymbol));该方式的key如果出现重复，则会插入数据失败；
       + (*pmapNHSymbolInfo)[objNHSymbolkey] = pNHSymbol;该方式的key如果出现重复则直接覆盖掉原来的数据，永远不会出现插入失败的问题。
+
+# 5. DFS_BFS
+
+# 6. Prime_Kruskal
+
+# 7. Floyd_Dijkstra
