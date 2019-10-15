@@ -107,6 +107,24 @@ void DirectedWeightAlgorithm::PrintPath(int *path, Vertex W, Vertex S){
     }
 }
 
-int DirectedWeightAlgorithm::Floyd(int cur){
+int DirectedWeightAlgorithm::Floyd(MGraph Graph,int *dist,int *path,Vertex S){
+    Vertex V;
+    for (V = 0; V < Graph->Nv ; V++){
+        dist[V] = Graph->G[S][V];
+        if (dist[V] < INFINITY)
+            path[V] = S;
+        else
+            path[V] = -1;
+    }
+    dist[S] = 0;
+    for(int k = 0; k < Graph->Nv; ++k){
+        for(int i = 0; i < Graph->Nv; ++i)
+            for(int j = 0; j < Graph->Nv; ++j){
+                if(Graph->G[i][j] > Graph->G[i][k] + Graph->G[k][j]){
+                    dist[j] = Graph->G[i][k] + Graph->G[k][j];
+                    path[j] = k;
+                }
+            }
+    }
 
 }
