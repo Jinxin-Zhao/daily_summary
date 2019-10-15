@@ -14,7 +14,8 @@ int main() {
     int * pDist = ob.getDist();
     int * pPath = ob.getPath();
     int S = 0;
-    ob.Dijkstra(ob.getGraph(),pDist,pPath,S);
+    //ob.Dijkstra(ob.getGraph(),pDist,pPath,S);
+    ob.Floyd(ob.getGraph(),pDist,pPath,S);
     std::cout<<"minest path: "<<std::endl;
     for (int i = 0; i < ob.getVertexNum(); i++){
         if (i != S){
