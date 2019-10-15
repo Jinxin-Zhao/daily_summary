@@ -57,7 +57,7 @@ public:
     }
 
 public:
-    int Floyd(int cur);
+    int Floyd(MGraph Graph,int *dist,int *path,Vertex S);
     //
     MGraph getGraph(){return m_Graph;}
     int * getDist(){return m_dist;}
