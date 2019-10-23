@@ -22,11 +22,12 @@ output:
 #include <cstdio>
 #include <cstdlib>
 #include <stack>
+#include <vector>
 
 //图的邻接矩阵表示法
 #define MaxVertexNum 100 //最大顶点数设为100
 #define INFINITY 65535 //无穷设为双字节无符号整数的最大值65535
-typedef int Vertex;//用顶点下标表示顶点，为整型
+typedef int Vertex;//用顶点下标表示顶点，为整型cd
 typedef int WeightType;//边的权值设为整型
 typedef char DataType;//顶点存储的数据类型设为字符型
 //图结点的定义
@@ -57,14 +58,18 @@ public:
     }
 
 public:
-    int Floyd(MGraph Graph,int *dist,int *path,Vertex S);
+    int Floyd(MGraph Graph,int **dist,int **path,Vertex S);
+    void InitArray(int **p,int vertexNum);
+    void PrintPath(int **path,Vertex S,Vertex W);
     //
+    bool Dijkstra(MGraph Graph, int *dist, int *path, Vertex S);
     MGraph getGraph(){return m_Graph;}
     int * getDist(){return m_dist;}
     int * getPath(){return m_path;}
     int getVertexNum(){return m_VertexNum;}
     void PrintPath(int *path, Vertex W, Vertex S);
-    bool Dijkstra(MGraph Graph, int *dist, int *path, Vertex S);
+    //
+    void TopologicalSort(){}
 private:
     void init();
     MGraph CreateGraph(int VertexNum);
