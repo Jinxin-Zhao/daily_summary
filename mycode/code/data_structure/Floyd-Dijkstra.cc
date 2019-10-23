@@ -107,22 +107,45 @@ void DirectedWeightAlgorithm::PrintPath(int *path, Vertex W, Vertex S){
     }
 }
 
-int DirectedWeightAlgorithm::Floyd(MGraph Graph,int *dist,int *path,Vertex S){
+void DirectedWeightAlgorithm::PrintPath(int **path,Vertex S,Vertex W){
+    std::stack<int> s;
+    s.push(W);
+    while(path[S][W] != INFINITY){
+        W = path[S][W];
+        s.push(W);
+    }
+    std::cout<<S<<" ";
+    while (!s.empty() ){
+        printf("%d ", s.top() );
+        s.pop() ;
+    }
+}
+
+void DirectedWeightAlgorithm::InitArray(int **p,int vertexNum){
+    for(int i = 0; i < vertexNum; ++i){
+        for(int j = 0; j < vertexNum; ++j){
+            p[i][j] = INFINITY;
+        }
+    }
+}
+
+int DirectedWeightAlgorithm::Floyd(MGraph Graph,int ** dist,int **path,Vertex S){
     Vertex V;
     for (V = 0; V < Graph->Nv ; V++){
-        dist[V] = Graph->G[S][V];
-        if (dist[V] < INFINITY)
-            path[V] = S;
-        else
-            path[V] = -1;
+        dist[S][V] = Graph->G[S][V];
+//        if (dist[S][V] < INFINITY)
+//            path[V] = S;
+//        else
+//            path[V] = -1;
     }
-    dist[S] = 0;
+    dist[S][V] = 0;
     for(int k = 0; k < Graph->Nv; ++k){
         for(int i = 0; i < Graph->Nv; ++i)
             for(int j = 0; j < Graph->Nv; ++j){
                 if(Graph->G[i][j] > Graph->G[i][k] + Graph->G[k][j]){
-                    dist[j] = Graph->G[i][k] + Graph->G[k][j];
-                    path[j] = k;
+                    path[i][j] = k;
+                    Graph->G[i][j] = Graph->G[i][k] + Graph->G[k][j];
+                    dist[i][j] = Graph->G[i][j];
                 }
             }
     }
