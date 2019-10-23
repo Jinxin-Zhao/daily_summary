@@ -1,0 +1,1 @@
+/usr/local/bin/g++  -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/Prime_Kruskal.dir/Floyd-Dijkstra.cc.o CMakeFiles/Prime_Kruskal.dir/Prime-Kruskal.cc.o CMakeFiles/Prime_Kruskal.dir/main.cpp.o  -o Prime_Kruskal 
