@@ -1,16 +1,16 @@
 <!-- TOC -->
 
-[1. Priority_queue](#1-priority_queue)
+[1. Priority queue](#1-priority-queue)
 [2. Heap](#2-heap)
 [3. HashMap](#3-hashmap)
 [4. Map](#4-map)
-[5. DFS_BFS](#5-dfs_bfs)
-[6. Prime_Kruskal](#6-Prime_Kruskal)
-[7. Floyd_Dijkstra](#7-Floyd_Dijkstra)
+[5. DFS & BFS](#5-dfs-bfs)
+[6. Prime & Kruskal](#6-prime-kruskal)
+[7. Floyd & Dijkstra](#7-floyd-dijkstra)
 
 <!-- TOC -->
 
-# 1. priority_queue
+# 1. Priority queue
 + summary
     - priority_queue<Type, Container, Functional>，其中Type 为数据类型，Container为保存数据的容器，Functional 为元素比较方式。
     - Container必须是用**数组**实现的容器，比如vector,deque等等，**但不能用list**。STL里面默认用的是vector。
@@ -23,9 +23,11 @@
     using namespace std;
     int main(){
     priority_queue<int> q;
-prime_kruskal++i ) q.push(i)prime_kruskal
-prime_kruskal
-prime_kruskal;
+    for(int i = 0; i < 10; ++i)
+        q.push(i)
+    }
+    while(!q.empty()){
+        std::cout<<q.top()<<" ";
         q.pop();
     }
     //output：
@@ -172,7 +174,7 @@ prime_kruskal;
 + theoretical analysis:
 ../doc/c++/data_structure.mdnel ../doc/c++/data_structure.mdre: ../doc/c++/data_structure.md
 
-# 2. heap
+# 2. Heap
 +  buildMaxHeap方法的流程简单概括起来就是一句话，从A.length / 2一直到根结点进行maxHeapify调整,花费时间 O(n)
 
 ```cpp
@@ -430,8 +432,38 @@ class map{
       + pmapNHSymbolInfo->insert(std::make_pair(pNHSymbolkey, pNHSymbol));该方式的key如果出现重复，则会插入数据失败；
       + (*pmapNHSymbolInfo)[objNHSymbolkey] = pNHSymbol;该方式的key如果出现重复则直接覆盖掉原来的数据，永远不会出现插入失败的问题。
 
-# 5. DFS_BFS
+# 5. DFS & BFS
 
-# 6. Prime_Kruskal
+# 6. Prime & Kruskal
+## summary(undirected weighted graph)
++ shortest path is called minimum spanning tree(MST)
++ Prime$(O(n^{2}))$
++ Kruskal$( O(eloge) )$
 
-# 7. Floyd_Dijkstra
+
+# 7. Floyd & Dijkstra
+## summary(directed weighted graph)
++ Floyd: no negative ring(more extensive than Dijkstra), $O(n^{3})$;
++ Dijkstra(without negative edge),$O(n^{2})$
++ Bellman
+
+## Floyd
++ to nake the shortest path between "a" & "b",you can introduce the other point k which is between "a" & "b", path like this: a->k->b,what we need to do is to find these k points
++ init status:
+![avatar](ds_png/floyd_1.png)
+
++ it can only pass point "1",then update the matrix:
+![avatar](ds_png/floyd_2.png)
++ comment: to find the shortest path between 3 & 2;
+    + [3->2] is inited as infinity;
+    + [3->2] can be transfered to [3->1->2];
+    + [2->1: 2] + [1->3: 7] = 9 < &;
+    + [3->2] = 9;
+
++ it can only pass point "1" & "2",then update the matrix:
+![avatar](ds_png/floyd_3.png)
++ comment: to find the shortest path between 1 & 3;
++ [1->3] is inited as "6";
++ [1->3] can be transfered to [1->2->3];
++ [1->2: 2] + [2->3: 3] = 5 < 6;
++ [1->3] = 5;
