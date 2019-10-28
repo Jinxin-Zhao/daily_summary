@@ -1,4 +1,6 @@
 *.DS_Store
 mycode/code/data_structure/DFS/cmake-build-debug/*
-mycode/code/subject/Algorithm/cmake-build-debug/
+mycode/code/subject/Algorithm/cmake-build-debug*
 mycode/code/data_structure/DFS/cmake-build-debug*
+mycode/code/data_structure/Prime-Kruskal/cmake-build-debug*
+*workspace.xml
