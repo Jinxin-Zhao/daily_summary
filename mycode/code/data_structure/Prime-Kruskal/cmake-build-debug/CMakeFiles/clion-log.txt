@@ -1,4 +1,0 @@
-/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/local/bin/gcc -DCMAKE_CXX_COMPILER=/usr/local/bin/g++ -G "CodeBlocks - Unix Makefiles" /Users/xina/workspace/kernel/mycode/code/data_structure/Prime-Kruskal
--- Configuring done
--- Generating done
--- Build files have been written to: /Users/xina/workspace/kernel/mycode/code/data_structure/Prime-Kruskal/cmake-build-debug

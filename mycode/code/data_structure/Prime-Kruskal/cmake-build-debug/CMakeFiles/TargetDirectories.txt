@@ -1,3 +1,0 @@
-/Users/xina/workspace/kernel/mycode/code/data_structure/Prime-Kruskal/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/Users/xina/workspace/kernel/mycode/code/data_structure/Prime-Kruskal/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/xina/workspace/kernel/mycode/code/data_structure/Prime-Kruskal/cmake-build-debug/CMakeFiles/Prime_Kruskal.dir

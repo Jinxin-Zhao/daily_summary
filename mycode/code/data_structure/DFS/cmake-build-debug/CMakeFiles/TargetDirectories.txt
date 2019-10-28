@@ -1,3 +1,0 @@
-/Users/xina/workspace/treasure/mycode/code/data_structure/DFS/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/Users/xina/workspace/treasure/mycode/code/data_structure/DFS/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/xina/workspace/treasure/mycode/code/data_structure/DFS/cmake-build-debug/CMakeFiles/DFS.dir
