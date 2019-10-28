@@ -23,6 +23,7 @@ output:
 #include <cstdlib>
 #include <stack>
 #include <vector>
+#include <list>
 
 //图的邻接矩阵表示法
 #define MaxVertexNum 100 //最大顶点数设为100
@@ -69,7 +70,12 @@ public:
     int getVertexNum(){return m_VertexNum;}
     void PrintPath(int *path, Vertex W, Vertex S);
     //
-    void TopologicalSort(){}
+    // function to add an edge to graph
+    void addEdge(int v, int w);
+    // prints a Topological Sort of the complete graph
+    void topologicalSort();
+    //
+    void topologicalSort_2();
 private:
     void init();
     MGraph CreateGraph(int VertexNum);
@@ -80,9 +86,19 @@ private:
     int * m_dist;
     int * m_path;
     MGraph  m_Graph;
+    //No. of vertices
     int m_VertexNum;
     int m_EdgeNum;
 
+    //for topologic sort
+    bool * m_visit;
+    // Pointer to an array containing adjacency listsList
+    std::list<int> * m_adj;
+    std::stack<int> m_stack;
+    // A function used by topologicalSort
+    void topologicalSortHelper(int v, bool visited[], std::stack<int>& Stack);
+    //
+    void topologicDegree(int v,bool visit[],std::stack<int>& Stack);
 };
 
 

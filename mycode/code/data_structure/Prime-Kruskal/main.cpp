@@ -37,5 +37,7 @@ int main() {
             printf("    %d\n",pDS[S][i]);
         }
     }
+
+    ob.topologicalSort();
     return 0;
 }

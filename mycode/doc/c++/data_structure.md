@@ -439,7 +439,140 @@ class map{
 + shortest path is called minimum spanning tree(MST)
 + Prime$(O(n^{2}))$
 + Kruskal$( O(eloge) )$
+## Algorithm
+### image:
+![avatar](ds_png/prime_kruskal.png)
+### Prime:
++ Prime Algorithm:
+    ![avatar](ds_png/prime.png)
+    + Step:
+        - prime is DFS algorithm actually;
+        - start from "$V0$",mark "$V0$" as visited;
+        - find the nearest vertice to "$V0$"-->"$V2$",mark "$V2$" as visited;
+        - start from "$V2$",find the nearest vertice to "$V2$"-->"$V1$",mark "$V1$" as visited;
+        - start from $"V1"$,find the nearest vertice to "$V1$"-->"$V3$",mark "$V3$" as visited;
+        - traverse distance array which record the shortest edge to current vertice,it can be found that $dis[V5] = 4$ and "$V5$" has never been visited,mark "$V5$" as visited;
+        - start from "$V5$",find the nearest vertice to "$V5$"-->"$V4$";
+    + source code:
+    ```cpp
+    int UnDirectedWeightAlgorithm::Prime(int cur) {
+    int index;
+    int sum = 0;
+    m_visited[cur] = true;
+    for(int i = 0; i < N; ++i){
+        dist[i] = graph[cur][i];
+    }
 
+    for(int i = 1; i < N; ++i){
+        int mincost = INF;
+        for(int j = 0; j < N; ++j){
+            if(!m_visited[j] && dist[j] < mincost){
+                mincost = dist[j];
+                index = j;
+            }
+        }
+
+        m_visited[index] = true;
+        sum += mincost;
+        for(int j = 0; j < N; ++j){
+            int s = graph[index][j];
+            if(!m_visited[j] && dist[j] > graph[index][j]){
+                dist[j] = graph[index][j];
+            }
+        }
+    }
+    return sum;
+    }
+    ```
+
+### Kruskal(depends on union_find set):
++ Union-find Set:
+    - concept:
+        - union_find set: tree structure,if two nodes have common ancestor,then there's no edge between then, or it results in loop path;
+        - algorithm:
+            - find: find ancestor node of current nodes to see whether the two nodes have common ancestor;
+            - union: if the two nodes have different ancestors,then union them to one set;
+        - classification:
+            - union_set image:
+            ![avatar](ds_png/union_set.png)
+            - (I) union by rank:
+                - unio "D" and "Y",first find ancestor of D-->"A",then find ancestor of Y-->"H";union H to A(always union low rank tree to high rank tree);
+                rank(depth) remains 2;
+                - left tree's rank(depth)=2, right tree's rank(depth)=1; new tree's rank remains stable(rank = 2) when union two trees ; if two trees' ranks are equal,then new tree's rank = rank + 1;
+                ![avatar](ds_png/union_set_1.png)
+                - source code:
+                ```cpp
+                void UnDirectedWeightAlgorithm::make_set(){
+                for (int i = 0; i < N; ++i){
+                    m_father[i] = i;
+                    m_rank[i] = 1;
+                }
+                return;
+                }
+
+                int UnDirectedWeightAlgorithm::find_set(int x){
+                if (x != m_father[x]){
+                    m_father[x] = find_set(m_father[x]);
+                    }
+                    return m_father[x];
+                }
+
+                void UnDirectedWeightAlgorithm::union_set(int x,int y){
+                    x = find_set(x);
+                    y = find_set(y);
+                    if(x == y)
+                        return;
+                    if(m_rank[x] < m_rank[y]){
+                        m_father[x] = find_set(y);
+                    }else{
+                        if(m_rank[x] == m_rank[y]){
+                            m_rank[x] ++;
+                        }
+                        m_father[y]  = find_set(x);
+                    }
+                    return;
+                }
+
+                ```
+            - (II) union with path compressing:
+                - ensure each subtree's depth is 1 before unioning two trees;
+                - ![avatar](ds_png/union_set_2.png)
+                - source code:
+                ```cpp
+                int UnDirectedWeightAlgorithm::find_set_c(int x){
+                    int r = x;
+                    while(m_father[r] != r){
+                        r = m_father[r];
+                    }
+                    int i = x;
+                    int j = 0;
+                    while(m_father[i] != r){
+                        j = m_father[i];
+                        m_father[i] = r;
+                        i = j;
+                    }
+                    return r;
+                }
+
+                void UnDirectedWeightAlgorithm::union_set_c (int x,int y)
+                {
+                    int fx = find_set_c(x);
+                    int fy = find_set_c(y);
+                    if(fx != fy){
+                        m_father[fx] = fy;
+                    }
+                }
+                ```
++ Kruskal Algorithm:
+                    
+    - find from the shortest edge,then add into union-find set;
+    ![avatar](ds_png/kruskal.png)
+    - union by rank:
+        - image:
+        ![avatar](ds_png/kruskal_rank.png)
+    - union with path compressing:
+        - image:
+        ![avatar](ds_png/kruskal_compress.png)
 
 # 7. Floyd & Dijkstra
 ## summary(directed weighted graph)
@@ -467,3 +600,6 @@ class map{
 + [1->3] can be transfered to [1->2->3];
 + [1->2: 2] + [2->3: 3] = 5 < 6;
 + [1->3] = 5;
+
+## Dijkstra
+![avatar](ds_png/dijkstra.png)

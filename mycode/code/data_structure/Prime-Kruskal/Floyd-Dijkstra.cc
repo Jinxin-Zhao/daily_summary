@@ -1,7 +1,7 @@
 #include "Floyd-Dijkstra.h"
 
 void DirectedWeightAlgorithm::init(){
-    std::cout<<"please input vexNum & EdgeNum: "<<std::endl;
+    std::cout<<"please input [vexNum] & [EdgeNum]: "<<std::endl;
     scanf("%d %d", &m_VertexNum, &m_EdgeNum);
 
     m_dist = (int *)malloc(sizeof (int) * m_VertexNum);//初始化dist
@@ -9,12 +9,18 @@ void DirectedWeightAlgorithm::init(){
     m_Graph = CreateGraph(m_VertexNum);
     m_Graph->Ne = m_EdgeNum;
     Edge E = (Edge)malloc(sizeof(struct ENode ));
-
+    m_adj = new std::list<int>[m_VertexNum];
+    m_visit = new bool[m_VertexNum];
+    for(int i = 0; i < m_VertexNum; ++i){
+        m_visit[i] = false;
+    }
     std::cout<<"please input weight of edge, like ' 0 1 100 '"<<std::endl;
     for(int i = 0; i < m_Graph->Ne ; i++){
         scanf("%d %d %d", &E->V1 , &E->V2 , &E->Weight );
         InsertEdge(m_Graph, E);
-    }//至此，图创建完成
+        //for topologic sort
+        addEdge(E->V1,E->V2);
+    }
 }
 
 MGraph DirectedWeightAlgorithm::CreateGraph(int VertexNum){
@@ -25,7 +31,6 @@ MGraph DirectedWeightAlgorithm::CreateGraph(int VertexNum){
         for (int j = 0; j < Graph->Nv ; j++ )
             Graph->G[i][j] = INFINITY;
     }
-
     return Graph;
 }
 
@@ -150,4 +155,33 @@ int DirectedWeightAlgorithm::Floyd(MGraph Graph,int ** dist,int **path,Vertex S)
             }
     }
 
+}
+
+
+void DirectedWeightAlgorithm::addEdge(int v, int w){
+    m_adj[v].push_back(w);
+}
+
+void DirectedWeightAlgorithm::topologicalSort(){
+    for(int i = 0; i < m_VertexNum; ++i){
+        if(!m_visit[i]){
+            topologicalSortHelper(i,m_visit,m_stack);
+        }
+    }
+    std::cout<<"topologic sort : ";
+    while(!m_stack.empty()){
+        std::cout<<m_stack.top()<<" ";
+        m_stack.pop();
+    }
+    std::cout<<std::endl;
+}
+
+void DirectedWeightAlgorithm::topologicalSortHelper(int v, bool visited[], std::stack<int>& Stack){
+    m_visit[v] = true;
+    for(auto i = m_adj[v].begin(); i != m_adj[v].end(); ++i){
+        if(!m_visit[*i]){
+            topologicalSortHelper(*i,m_visit,Stack);
+        }
+    }
+    Stack.push(v);
 }
