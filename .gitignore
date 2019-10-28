@@ -1,2 +1,4 @@
-.DS_Store
-*/.DS_Store
+*.DS_Store
+mycode/code/data_structure/DFS/cmake-build-debug/*
+mycode/code/subject/Algorithm/cmake-build-debug/
+mycode/code/data_structure/DFS/cmake-build-debug*
