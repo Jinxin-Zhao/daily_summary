@@ -1,13 +1,21 @@
 <!-- TOC -->
 
-[1. Priority queue](#1-priority-queue)
-[2. Heap](#2-heap)
-[3. HashMap](#3-hashmap)
-[4. Map](#4-map)
-[5. DFS & BFS](#5-dfs-bfs)
-[6. Prime & Kruskal](#6-prime-kruskal)
-[7. Floyd & Dijkstra](#7-floyd-dijkstra)
-
+- [1. Priority queue](#1-priority-queue)
+- [2. Heap](#2-heap)
+- [3. HashMap](#3-hashmap)
+- [4. Map](#4-map)
+- [5. DFS & BFS](#5-dfs-bfs)
+- [6. Prime & Kruskal](#6-prime-kruskal)
+- [7. Floyd & Dijkstra](#7-floyd-dijkstra)
+- [8. Sorting](#8-sorting)
+    - [8.1. Insert Sort](#81-insert-sort)
+    - [8.2. Shell Sort](#82-shell-sort)
+    - [8.3. Select Sort](#83-select-sort)
+    - [8.4. Qucik Sort](#84-quick-sort)
+        - [8.4.1. Original Quick Sort](#841-original-quick-sort)
+        - [8.4.2. Application](#842-application)
+    - [8.5. Merge Sort](#85-merge-sort)
+    - [8.6. Radix Sort](#86-radix-sort)
 <!-- TOC -->
 
 # 1. Priority queue
@@ -603,3 +611,13 @@ class map{
 
 ## Dijkstra
 ![avatar](ds_png/dijkstra.png)
+
+# 8. Sorting
+## 8.1. Insert Sort
+## 8.2. Shell Sort
+## 8.3. Select Sort
+## 8.4. Quick Sort 
+### 8.4.1. Original Quick Sort
+### 8.4.2. Application
+## 8.5. Merge Sort
+## 8.6. Radix Sort
