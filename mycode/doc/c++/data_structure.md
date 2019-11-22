@@ -613,6 +613,15 @@ class map{
 ![avatar](ds_png/dijkstra.png)
 
 # 8. Sorting
+| SortName | Stability | AverageTime | BestTime | WorstTIme |
+| ------ | ------ | ------ | ------ | ------ |
+| InsertSort | Stable |  $O(n^{2})$ | $O(n)$ | $O(n^{2})$ |
+| ShellSort | Stable |  $O(n^{1.5})$ | $O(n)$ | $O(n^{1.5})$ |
+| SelectSort | Stable |  $O(n^{2})$ | $O(n^{2})$ | $O(n^{2})$ |
+| QuickSort | Stable |  $O(nlogn)$ | $O(nlogn)$ | $O(n^{2})$ |
+| MergeSort | Stable |  $O(nlogn)$ | $O(nlogn)$ | $O(nlogn)$ |
+| RadixSort | Stable |  $O(n^{2})$ | $O(n)$ | $O(n^{2})$ |
+
 ## 8.1. Insert Sort
 ## 8.2. Shell Sort
 ## 8.3. Select Sort
