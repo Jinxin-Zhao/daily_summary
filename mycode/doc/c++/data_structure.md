@@ -365,24 +365,103 @@ class map{
 ```
 
 
-- customized key;
-    + key cannot be pointer and can only be object ($critical$);
+- customized key and how to find the key;
+    + key can be pointer(only if you override 'operator < ') and can only be object ($critical$);
     ```cpp
    std::map<NHSymbolkey, Stru_NHSymbol>*   pmapNHSymbolInfo1
 
    std::map<NHSymbolkey, Stru_NHSymbol*>*  pmapNHSymbolInfo2
    
-   std::map<NHSymbolkey*, Stru_NHSymbol*>*  pmapNHSymbolInfo3
+   std::map<NHSymbolkey*, Stru_NHSymbol*>*  pmapNHSymbolInfo3 
 
-   其中，pmapNHSymbolInfo1，pmapNHSymbolInfo2中使用find正常，遍历也正常；
-   pmapNHSymbolInfo3使用find查找不到对应的数据（数据已经存在，find不到，遍历可以找到）
-
-   reason：std::map<NHSymbolkey*, Stru_NHSymbol*>*  pmapNHSymbolInfo2在find的时候是根据指针(数据地址)进行查找的。而在数据insert时，数据都是new的，每次new出的地址是不一样的，在find数据时，根据数据地址找不到不同地址的相同数据。通过遍历是取出地址中内容一一比较，这样能够找到数据。
-
-   pmapNHSymbolInfo1、pmapNHSymbolInfo2两种方式都可以使用find方式查找数据，但是pmapNHSymbolInfo1中Stru_NHSymbol为对象，这样会使map占用空间比较大，pmapNHSymbolInfo2的Stru_NHSymbol为指针，存储时地址占用空间小，但是每次都是new处理来的，所有一定要记住使用完成后一定要delete，否则会出现内存泄露。
     ```
 
-    + customized key find;
+    + it needs to implement 'operator <' or pass UnaryPredicate or BinaryPredicate to map;
+    + wrong way to implement 'operator <':
+    ```cpp
+    struct SomeKey{
+        int a;
+        int b;
+    }
+    //wrong !!!
+    bool operator < (const SomeKey& right)
+    {
+        if (a < right.a) // 主key
+        {
+            return true;
+        }
+    
+        if (b < right.b) // 次key
+        {
+            return true;
+        }
+        return false;
+    }
+
+    //wrong !!!
+    bool operator< (const SomeKey & rValue) const {
+         return a < rValue.a || b < rValue.b;
+    }
+
+
+    int main(){
+        std::map<SomeKey, int> m;
+        m.insert({ { 10, 20 }, 1 });
+        m.insert({ { 5, 30 }, 2 });
+        auto it = m.find({ 5, 30 });
+        if (it == m.end())
+        {
+        	std::cout << "cannot find{5, 30}" << std::endl;   //enter into this branch
+        }
+        else
+        {
+        	std::cout << "found{5, 30}" << std::endl;
+        }
+        
+        /////
+        m.insert({ { 8, 25 }, 3 });
+        it = m.find({ 5, 30 });
+        if (it == m.end())
+        {
+        	std::cout << "找不到{5, 30}" << std::endl;
+        }
+        else
+        {
+        	std::cout << "找到{5, 30}" << std::endl;
+        }
+        return 0;
+    }
+    //output:
+    cannot find {5,30};
+    found {5,30};
+
+
+
+    ////correct
+    bool operator < (const SomeKey& right)
+    {
+        if (a < right.a) // 主key
+        {
+            return true; // 主key小，就小
+        }
+        if (a > right.a) // 主key
+        {
+            return false; // 主key大，就大
+        }
+        return b < right.b; // 主key相等，再比较次key
+    }
+    ```
+    + analysis: 
+     when m.insert({ { 5, 30 }, 2 });是以被插入值（后称目标值）和红黑树上的节点（后称节点值）比较;
+        ![avatar](ds_png/map_operator_1.png)
+
+     而在map表中find时，是以节点值和目标值进行比较;
+        ![avatar](ds_png/map_operator_2.png)
+        因为{10, 20} < {5, 30}，所以在{10, 20}的右子树上查找，自然就找不到了。
+    然后再次插入一个节点;因为{8, 25} < {10, 20}，继续{8, 25} < {5, 30}，最终{8, 25}插入到map表的最左子节点，破坏了红黑树的平衡，右旋后，整棵树变成:
+    ![avatar](ds_png/map_operator_3.png)
+    然后在表中find {5, 30}，首先找到第一个不小于{5, 30}的节点，因为第一个节点值{5, 30} 不小于目标值{5, 30}，而目标值{5, 30}也不小于该节点值{5, 30}，于是就找到了目标值。这种怪异行为导致的bug是比较隐秘的：你在表中找一个值，时而找得到，时而又找不到。
+
     ```cpp
     #include <iostream>
     #include <map>
@@ -396,7 +475,19 @@ class map{
         int TID;
 
         bool operator< (const AttrSubKey & rValue) const {
-            return clientID < rValue.clientID || instrumentID < rValue.instrumentID || TID < rValue.TID;
+            if(clientID < rValue.clientID){
+                return true;
+            }
+            if(clientID > rValue.clientID){
+                return false;
+            }
+            if(instrumentID < rValue.instrumentID){
+                return true;
+            }
+            if(instrumentID > rValue.instrumentID){
+                return false;
+            }
+            return TID < rValue.TID;
         }
     };
 
@@ -411,6 +502,80 @@ class map{
     }
 
     typedef map<AttrSubKey,int,AttrSubSetLessPred> T_AttrSubMap;
+
+    /////////////
+    struct COrder{
+    double LimitPrice;
+    long Priority;
+    long TimeSortID;
+    long ImplySortID;
+    char Direction;
+    };
+    class BuyOrderBookLessPred : public std::binary_function<COrder *,COrder*,bool>{
+        public:
+        bool operator() (const COrder * lValue,const COrder * rValue) const;
+    };
+
+    typedef std::map<COrder *,int,BuyOrderBookLessPred> TBuyOrderBook;
+
+    ////3 ways to implement operator()
+    ///1
+    bool BuyOrderBookLessPred::operator() (const COrder * lValue,const COrder * rValue) const{
+        if(lValue->LimitPrice > rValue->LimitPrice){
+            return true;
+        }
+        if(lValue->LimitPrice < rValue->LimitPrice){
+            return false;
+        }
+        if(lValue->Priority > rValue->Priority){
+            return true;
+        }
+        if(lValue->Priority < rValue->Priority){
+            return false;
+        }
+        if(lValue->TimeSortID < rValue->TimeSortID){
+            return true;
+        }
+        if(lValue->TimeSortID > rValue->TimeSortID){
+            return false;
+        }
+        return lValue->ImplySortID < rValue->ImplySortID;
+    }
+
+
+        //2
+    bool BuyOrderBookLessPred::operator() (const COrder * lValue,const COrder * rValue) const{
+        if(lValue->LimitPrice != rValue->LimitPrice){
+            return lValue->LimitPrice > rValue->LimitPrice;
+        }
+        if(lValue->Priority != rValue->Priority){
+            return lValue->Priority > rValue->Priority;
+        }
+        if(lValue->TimeSortID != rValue->TimeSortID){
+            return lValue->TimeSortID < rValue->TimeSortID;
+        }
+        if(lValue->ImplySortID != rValue->ImplySortID){
+            return lValue->ImplySortID < rValue->ImplySortID;
+        }
+        return false;
+    }
+
+
+        //3
+    bool BuyOrderBookLessPred::operator() (const COrder * lValue,const COrder * rValue) const{
+        if(lValue->LimitPrice > rValue->LimitPrice){
+            return true;
+        }else if(lValue->LimitPrice == rValue->LimitPrice && lValue->Priority > rValue->Priority){
+            return true;
+        }else if(lValue->Priority == rValue->Priority && lValue->TimeSortID < rValue->TimeSortID){
+            return true;
+        }else if(lValue->TimeSortID == rValue->TimeSortID && lValue->ImplySortID < rValue->ImplySortID){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
 
     int main(){
         T_AttrSubMap mm;
@@ -431,6 +596,8 @@ class map{
         }else{
             std::cout<<"not found"<<std:endl;
         }
+        /////
+        
         
     }
     ```
@@ -620,10 +787,13 @@ class map{
 | SelectSort | Stable |  $O(n^{2})$ | $O(n^{2})$ | $O(n^{2})$ |
 | QuickSort | Stable |  $O(nlogn)$ | $O(nlogn)$ | $O(n^{2})$ |
 | MergeSort | Stable |  $O(nlogn)$ | $O(nlogn)$ | $O(nlogn)$ |
-| RadixSort | Stable |  $O(n^{2})$ | $O(n)$ | $O(n^{2})$ |
+| RadixSort | Stable |  $O(nlogn)$ | $O(nlogn)$ | $O(nlogn)$ |
 
 ## 8.1. Insert Sort
++ scenario: it's applied when data are almost sorted or with small scale;
 ## 8.2. Shell Sort
++ scenario: it's applied when data scale >= medium
+
 ## 8.3. Select Sort
 ## 8.4. Quick Sort 
 ### 8.4.1. Original Quick Sort
