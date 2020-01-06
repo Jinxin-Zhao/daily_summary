@@ -366,7 +366,6 @@ void checkForCollision(GameObject& object1,
     process a SpaceShip-Asteroid collision;
   }
 
-
   ```
   + 此方法的缺点:每个类都必须知道他的同胞类，当增加新类时，所有的代码都必须更新。例:如果你要增加一个Satellite类，必须为每个现存类增加一个collide方法:
   ```cpp
@@ -375,6 +374,81 @@ void checkForCollision(GameObject& object1,
     process a SpaceShip-Satellite collision;
   }
   ```
+
+### solution3 (virtual Function Tables)
++ 基本思想是通过维系一个关系数组（map），通过这种映射关系找到对应的函数指针，从而执行相应的操作；
+  ```cpp
+  class GameObject{
+  public:
+    virtual void collide(GameObject & otherObject) = 0;
+  };
+
+  class SpaceShip : public GameObject{
+
+  public:
+    typedef void (SpaceShip::*HitFunctionPtr)(GameObject &);
+    typedef std::map<std::string,HitFunctionPtr> HitMap;
+    //
+    static HitFunctionPtr lookup(const GameObject & whatWeHit);
+
+    virtual void collide(GameObject & otherObject);
+    //
+    virtual void hitSpaceShip(SpaceShip & otherObject);
+    virtual void hitSpaceStation(SpaceStation & otherObject);
+    virtual void hitAsteroid(Asteroid & otherObject);
+
+  private:
+    static HitMap initializeCollisionMap();
+  };
+
+  //
+  SpaceShip::HitMap * SpaceShip::initializeCollisionMap(){
+    HitMap * phm = new HitMap;
+    //bad idea, hitSpaceShip is not the second type of HitMap
+    //the cast tells compiler that hitSpaceShip,hitSpaceStation,hitAsteroid expect 
+    //the parameter 'GameObject',but hitSpaceShip expect SpaceShip
+    (*phm)["SpaceShip"] = reinterpret_cast<HitFunctionPtr>(&hitSpaceShip);
+    (*phm)["SpaceStation"] = reinterpret_cast<HitFunctionPtr>(&hitSpaceStation);
+    (*phm)["Asteroid"] = reinterpret_cast<HitFunctionPtr>(&hitAsteroid);
+    return phm;
+  }
+
+
+  void SpaceShip::HitFunctionPtr SpaceShip::lookup(const GameObject & whatWeHit){
+    //
+    //static HitMap collisionMap = initializeCollisionMap();
+    static auto_ptr<HitMap> collisionMap(initializeCollisionMap());
+
+    auto mapEntry = collisionMap.find(typeid(whatweHit).name());
+    if(mapEntry == collisionMap.end())
+      return 0;
+    return (*mapEntry).second;
+  }
+
+  void SpaceShip::collide(GameObject & otherObject){
+    HitFunctionPtr hfp = lookup(otherObject);
+    if(hfp){
+      (this->*hfp)(otherObject);
+    }else{
+      throw CollisionWithUnknownObject(otherObject);
+    }
+  }
+
+  void SpaceShip::hitSpaceShip(SpaceShip& otherObject)
+  {
+    process a SpaceShip-SpaceShip collision;
+  }
+  void SpaceShip::hitSpaceStation(SpaceStation& otherObject)
+  {
+    process a SpaceShip-SpaceStation collision;
+  }
+  void SpaceShip::hitAsteroid(Asteroid& otherObject)
+  {
+    process a SpaceShip-Asteroid collision;
+  }
+  ```
+
+
 
 # 4. Constrain Object Number
 + constrain object to 0 or 1
