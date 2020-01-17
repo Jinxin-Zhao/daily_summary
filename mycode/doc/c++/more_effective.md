@@ -447,7 +447,28 @@ void checkForCollision(GameObject& object1,
     process a SpaceShip-Asteroid collision;
   }
   ```
-
+    + the interpret_cast in function 'initializeCollisionMap'  may guide you to the wrong address when subclass has multibase classes;
+    ```cpp
+    void SpaceShip::hitSpaceShip(GameObject& spaceObject)
+    {
+        SpaceShip & otherObject = dynamic_cast<SpaceShip &>(spaceObject);
+        process a SpaceShip-SpaceShip collision;
+    }
+    void SpaceShip::hitSpaceStation(GameObject& spaceStationObject)
+    {
+        SpaceStation & otherObject = dynamic_cast<SpaceStation &>(spaceStationObject);
+        process apaceShip-SpaceStation collision;
+    }
+    void SpaceShip::hitAsteroid(GameObject& asteroidObject)
+    {
+        Asteroid & otherObject = dynamic_cast<Asteroid &>(asteroidObject);
+        process a SpaceShip-Asteroid collision;
+    }
+    //if GameObject and SpaceShip is not related(SpaceShip inherit  GameObject, or GameObject inherit SpaceShip)
+    //it'll throw a exception(bad cast)
+    //you'd better use 'dynamic_cast<SpaceShip *>(spaceObject)' 
+    ```
+### solution4
 
 
 # 4. Constrain Object Number
