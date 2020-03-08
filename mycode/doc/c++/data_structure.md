@@ -798,5 +798,56 @@ class map{
 ## 8.4. Quick Sort 
 ### 8.4.1. Original Quick Sort
 ### 8.4.2. Application
+#### 8.4.2.1 Quick-SELECT Algorithm( find the kth-smallest number in O(n) )
++ first we should make clear the formulars below:
+    $$ x - 1 < \lfloor{x}\rfloor <= x <= \lceil{x}\rceil < x + 1$$
+    $$ \lfloor\frac{n}{2}\rfloor + \lceil\frac{n}{2}\rceil = n $$
++ the algorithm's time complexity is O(n) at worst. the steps below( find the ith smallest element ):
+    - 1. divide the input array which contains n elements into $\lfloor\frac{n}{5}\rfloor$ groups, leave only one group which contains n mod 5 elements; //O(1)
+    - 2. find each group's median: 
+        - You're ought to sort the elements in each group( normally use insert sort algorithm) in advance;
+        - then you can find the median in each sorted group; //O(n)
+    - 3. find the median(x) of the medians found in step 2( if number of the medians is even,we return the smaller one );
+    - 4. make the final median be the pivot of the array,use PARTITION function to divide the array, the "k" = (number of the low section) + 1,so the x is the kth smallest number,and there's n-k elements in the high section;
+    - 5. if i = k; return x;
+         if x < k,call SELECT algorithm in the low section recursively to find the ith smallest element;
+         if x > k, call SELECT algorithm in the high section recursively to find the (i-k)th smallest element;
+
+    Analysis:
+    ![avatar](ds_png/qselect.png)
+
+    as can be seen from the png, there's half of the groups which has 3 elements greater than x at least except for the 2 groups(the group containing x and the last group);
+    so the number of elements greater than x:
+    $$ 3 * (\lceil{\frac{1}{2}*\lceil\frac{n}{5}\rceil}\rceil - 2) >= \frac{3n}{10} - 6$$, analogously the number of elements less than x is $ \frac{3n}{10} - 6$;
+    so the number of elements step '5' calls SELECT algorithm on is: $$ n - (\frac{3n}{10} - 6) = \frac{7n}{10} + 6$$
+
+    Now we can write down the time cost below:
+    + step '1','2','4' cost O(n);
+    + step '3' cost $T(\lceil\frac{n}{5}\rceil)$
+    + step '5' cost $T(\frac{7n}{10}+6)$
+
+    $$T(n) <= {\begin{cases} O(1) \qquad\ n < 140\\T(\lceil\frac{n}{5}\rceil) + T(\frac{7n}{10}+6) + O(n) \qquad\ n>= 140 \end{cases}} $$
+    why the magic number is 140?
+    we'll prove that for some constant c,and n>0, T(n) <= cn is always true;
+    [**Prove**]:
+       first: Providing there's some constant c and n < 140,T(n) <= cn is obiviously true;
+       second: Providing there's some constant a,O(n) has upper bound 'an' ,O(n) <= an
+       $$T(n) <= c*\lceil\frac{n}{5}\rceil + c(\frac{7n}{10}+6) + an$$
+       $$<= \frac{cn}{5}+c + \frac{7cn}{10} + 6c + an$$
+       $$ = \frac{9cn}{10} + 7c + an$$
+       $$ = cn + (\frac{-cn}{10} + 7c + an)$$
+    if the formular above is true( T(n) <= cn ):
+        $$\frac{-cn}{10} + 7c + an <= 0$$
+    when n > 70,
+        $$c >= \frac{10an}{n-70}$$
+    cause we have the condition that n >= 140;
+        $$\frac{n}{n-70} >= 2$$
+        $$=> c >= 20a $$
+    only of c >= 20, we can prove that T(n) <= cn, and the '140' can be any number greater than 70
+
++ However what if the divisor is '3' instead of '5',Could the time complexity be **O(n)** ?
+    the answer is no!! (the divisor must be greater than 5)
+
+
 ## 8.5. Merge Sort
 ## 8.6. Radix Sort
