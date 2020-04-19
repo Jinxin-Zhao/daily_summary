@@ -4,7 +4,7 @@
 - [2. Virtual Constructor](#2-virtual-constructor)
 - [3. How to virtualize according to more than one object](#3-how-to-virtualize-according-to-more-than-one-object)
 - [4. Constrain Object Number](#4-constrain-object-number)
-
+- [5. Reduce file dependency](#5-reduce-file-dependency)
 <!-- TOC -->
 
 
@@ -18,9 +18,9 @@
     - set default value of Type
   + operator new:
     function ptototype:
-    ```
+    ```cpp
     void * operator new(size_t size);
-    [attention]:you can override this function,when you call new like this: 
+    //[attention]:you can override this function,when you call new like this: 
     string *p = new string(),it'll call the 'operator new(size_t size)' you override, 
     ```
   + relationship between "new operator" & "operator new":
@@ -698,4 +698,191 @@ void checkForCollision(GameObject& object1,
   ```cpp
   //user's cpp
   const size_t Counted<Printer>::maxObjects = 10;
+  ```
+
+# 5. Reduce compilation dependency
++ Providing that you modify the private part      (implemention of some private function) of some class, then you compile the code that used the class,you'll find that the compiler'll recompile all the code.
+  such as the instance below:
+  ```cpp
+  //person.h
+  #include <string>
+  #include "date.h"
+  #include "address.h"
+
+  class Person{
+    public:
+      Person(const std::string & name,const Date & birthday,const Address & addr);
+      std::string name() const;
+      std::string birthDate() const;
+      std::string address() const;
+  };
+  ```
+  once one of the head files among "date.h" and "address.h" is modified (or the files the two head files quote), every file that includes "person.h" will recompile, the cascading compilation dependencies do damgaes to many projects.
+
++ maybe you have some good points such as putting the front declaration before the 'Person' class definition:
+  ```cpp
+  //person.h
+  class Date;
+  class Address;
+  class Person{
+    public:
+      Person(const std::string & name,const Date & birthday,const Address & addr);
+      std::string name() const;
+      std::string birthDate() const;
+      std::string address() const;
+  };
+  ```
+  you can use the 'person.h' like this:
+  ```cpp
+  #include "person.h"
+  int main(){
+    int x;
+    Person p(params ....); //error
+  }
+  ```
+  so in which way can compiler find the size of "p"?
+  of course you can code like this:
+  ```cpp
+  int main(){
+    Person *p; //pointer type which is  4b
+  }
+  ```
+
+## the original solution comes out:
+  ```cpp
+  //person.h
+  class PersonImpl;
+  class Date;
+  class Address;
+
+  class Person{
+    public:
+      Person(const std::string & name,const Date & birthday,const Address & addr);
+      std::string name() const;
+      std::string birthDate() const;
+      std::string address() const;
+      ...
+    private:
+      std::tr1::shared_ptr<PersionImpl> pImpl;  
+  };
+  ```
+  ```cpp
+  #include "person.h"
+  #include "personImpl.h"
+
+  Person::Person(const std::string & name,const Date& birthday,const Address &address)
+  :pImp(new PersonImp(name,birthday,addr)){
+  }
+
+  std::string Person::name() const{
+    return pImpl->name();
+  }
+  ```
+  this design pattern is called **"pimpl idiom  (pointer to implemention)"**. In this way, we can divide the user of "person.h" from the implementions of "Date","Address" and "Person";
+  And the class like "Person" who uses the 'pimpl idiom' is called **"Handle classes"**
++ it generates two rules:
+  - use 'object reference' or 'object pointers' as much as possible rather than use object which need to know the size of the type;
+  - use 'class declaration' instead of using 'class definition';
+  - offer different head files of 'class declaration' and 'class defintion',sush as:
+  ```cpp
+  //head files for declaration
+  //datefwd.h
+  class Date;
+  class Address;
+  class Name;
+  ```
+  ```cpp
+  //head files for declaration
+  //datedf.h
+  class Date{
+    public:
+      Date(){....}
+      void name(){std::cout<<"date";}
+    private:
+      int d;
+  };
+  class Address{
+    public:
+      Address(){....}
+      void name(){std::cout<<"address";}
+    private:
+      int a;
+  };
+  ```
+  if a user just wants to use the declaration of Date, he needs to include "datefwd.h",however if he wants to use the definition of 'Date',he must include "datedf.h";
+  ```cpp
+  #include "datefwd.h"
+
+  class Time{
+    public:
+      Time(const Date & date){}
+      Date getDate(){}
+  };
+  ```
+  ```cpp
+  #include "datedf.h"
+
+  class Time{
+    public:
+      Time(const Date & date){
+        date.name();
+      }
+      Date getDateSize(){
+        std::cout<<sizeof(Date)<<std::endl;
+      }
+  };
+  ```
+
+## Another way to make Handle class
++ make "Person" class be the abstract base class:
+  ```cpp
+  //"person.h"
+  class Person{
+    public:
+      static std::tr1::shared_ptr<Person> create(const std::string & name,const Date & birthday,const Address & addr);
+      std::string name() const = 0;
+      std::string birthDate() const = 0;
+      std::string address() const = 0;
+      ...
+    private:
+      std::tr1::shared_ptr<PersionImpl> pImpl;  
+  };
+  ```
+  ```cpp
+  //"personImpl.h"
+  #include "person.h"
+
+  class RealPerson : public Person {
+    public:
+      RealPerson(const std::string & name,const Date & birthday, const Address & addr)
+      : theName(name),theBirthDate(birthday),theAddress(addr){
+      }
+      virtual ~RealPerson(){}
+      std::string name() const;
+      std::string birthDate() const;
+      std::string address() const;
+    private:
+      std::string theName;
+      Date theBirthDate;
+      Address theAddress;
+  };
+
+  std::tr1::shared_ptr<Person> Person::create(const std::string & name,const Date & birthday,const Address & addr){
+    return std::tr1::shared_ptr<Person>(new RealPerson(name,birthday,addr));
+  }
+  ```
+
+  normally we can use it like this:
+  ```cpp
+  #include "person.h"
+
+  int main(){
+    std::string name;
+    Date dateofBirth;
+    Address address;
+    std::tr1::shared_ptr<Person> pp(Person::create(name,dateofBirth,address));
+    //std::tr1::shared_ptr<Person> pp = std::make_shared<Person>(Person::create(name,dateofBirth,address));
+
+    std::cout<<pp->name()<<"was born on "<<pp->birthDate()<<" and now lives at "<<pp->address();
+  }
   ```
