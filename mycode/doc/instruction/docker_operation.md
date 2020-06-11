@@ -32,7 +32,17 @@
         ]# exit
 + by the way you can inspect the particular infomation by typing:
     - ]# docker inspect [id] ( docker inspect '1a')
+    - ]# docker inspect -f '{{.Id}}' centos_xin //query full name of container
++ how to transfer files between docker container and host:
+  - docker cp [host_dir_path] [fullname_of_container]:[container_dir_path]    //host --> container
+  - docker cp [fullname_of_container]:[container_dir_path] [host_dir_path]     //container --> host
+ 
+  - example: container --> host
+    docker cp cc80438298a32bc5918a2aec891a653ec2f84597f364eb30f2ae69f7cec4b2ac:/opt/share/cmake-build-debug /Users/xina/workspace/remote_workspace/d_craft/
 
++ how to ssh the docker container:
+    - ]# ssh root@0.0.0.0 -p 8022
+  
 + problems you may encounter:
     我现在想要使用SSH连接到容器’ssh root @< IP address>‘但该命令给出以下错误：’操作超时’.
     进一步调查显示我无法ping< IP地址> – &GT; ‘请求icmp_seq 0的超时’
