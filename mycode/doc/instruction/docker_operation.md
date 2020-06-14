@@ -1,4 +1,4 @@
-###how to use docker to install linux system in macos
+### how to use docker to install linux system in macos
 + make sure docker has been successfully installed in advance;
 + command needing to input:
     - docker search centos;
@@ -67,3 +67,39 @@
     (2e832b82fc67d3e48864975c6eb02f6c099e34eee64b29634cfde286c41e00a7):
     Error starting userland proxy: Failed to bind: EADDRINUSE.
     ```
+
+
+### in virtual machine, if there's no ip address:
+    [root@localhost ~]# cd /etc/sysconfig/network-scripts/
+    [root@localhost network-script]# vi ifcfg-ens33
+    set ONBOOT=yes
+    [root@localhost network-script]# systmctl restart NetWorkManager 
+### in virtual machine, how to set ip fixed-address:
+    + look for the MAC address: settings --> network adaptor --> advanced options
+    + modify dhcpd.conf:
+        on my system,this file is located in '/Library/Preferences/VMware Fusion/vmnet8',so edit the file(use sudo):
+        ]# sudo vim /Library/Preferences/VMware Fusion/vmnet8/dhcpd.conf
+
+        Now, after where it says "End of "DO NOT NODIFY SECTION"",enter the following lines:
+        ```cpp
+        host CentOS7x64 {
+	        hardware ethernet 00:0C:29:CF:9E:C0;
+            fixed-address 172.16.223.80
+        }
+        //[Crutial]: My VM's name is actually "CentOS 7 x64",so in the dhcpd.conf file you must refer to it with no spaces in the name "CentOS7x64";
+        //[Crutial]: you must allocate an IP address that is outside the range defined in :
+
+        subnet 172.16.223.0 netmask 255.255.255.0 {
+	        range 172.16.223.128 172.16.223.254;
+	        option broadcast-address 172.16.223.255;
+	        option domain-name-servers 172.16.223.2;
+	        option domain-name localdomain;
+	        default-lease-time 1800;                # default is 30         minutes
+	        max-lease-time 7200;                    # default is 2 hours
+	        option netbios-name-servers 172.16.223.2;
+	        option routers 172.16.223.2;
+        }
+        // so I can allocate any address under 172.16.223.128(which means 172.16.233.{1~127})
+        ```
+    + restart VMware Fusion
+    + start the VM
