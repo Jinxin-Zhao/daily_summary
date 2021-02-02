@@ -165,6 +165,36 @@ the best choice of synchronization mechanism.
 ###packaged_task<> & std::promise
 + std::packaged_task cannot be copied, it ties a future to the result of a function call: when the function completes,the future is ready, and the associated data is the value returned by the function;
 
+### atomic variable
++ The Standard atomic types are not copyable or assignable in the conventional sense(they have no copy constructors or copy assignment operators).
+    However,they do support assignment from and implicit conversion to the corresponding built-in types.
++ Each of the operations on the atomic types has an optional memory ordering argument which can be used to specify the required memory ordering semantics,the operations are divided into 3 categories:
+    - [stroe operations]: which can have memory_order_relaxed, memeory_order_release, memory_order_seq_cst ordering;
+    - [load operations]:  which can have memory_order_relaxed, memory_order_consume, memory_order_acquire, memory_order_seq_cst ordering;
+    - [read-modify-write]: which can have memory_order_relaxed, memory_order_consume, memory_order_acquire, memory_order_release, memory_order_acq_rel, memory_order_seq_cst ordering;
+  The default ordering for all operarations is memory_order_seq_cst;
+#### std::atomic_flag
++ Objects of type std::atomic_flag must be initialized with ATOMIC_FLAG_INIT to clear the state. It is the only atomic type to require such special treatment for initialization and It's also the only type guaranteed to be lock free
+(if the std::atomic_flag object has static storage duration,It's guaranteed to be statically initialized. It will always be initialized by the time of the first operation on the flag)
+#### std::atomic_bool
++ This is a more fullfeatured boolean flag than std::atomic_flag,you can construct it from a non-atomic bool, so it can be initialized true or false.
+   ```cpp
+   std::atomic_bool b = true;
+   ```
+#### Storing a new value(or not) depending on the current value
++ 2 member functions: "compare_exchange_weak()", "compare_exchange_strong()";
+  - return type of the functions above is a bool(true: if the store was performed, false otherwise);
+  - it compares the value of the atomic variable with a supplied "expected" value and stores the supplied "desired" value if they are equal.    if the values are not equal, the "expected" value is updated with the actual value of the atomic variable.
+  ```cpp
+  bool expected = false;
+  atomic_bool b = false;
+  //if b is equal to "expected" value(which is false here,the first param in compare_exchange_weak()),then store the supplied "desired" value(true here,the second param in compare_exchange_weak())
+  while(!b.compare_exchange_weak(expected,true) && !expected);
+  ```
+##### compare_exchange_weak()
++ the store might not be successful even if the original value was equal to the "expected" value(in which case the value of the variable is unchanged and the return value of compare_exchange_weak() is false).this is called a "spurious" failure.
+##### compare_exchange_strong()
++ On the other hand,compare_exchange_strong() is guaranteed to only return false if the actual value was not equal to the "expected" value.
 
 ### atomic
 + atomic<int> a
@@ -323,3 +353,4 @@ the best choice of synchronization mechanism.
             }
         }
   ```
+
