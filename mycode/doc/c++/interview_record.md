@@ -12,3 +12,14 @@
 #### 项目经验
 + 系统QPS；
 + 架构，所用的第三方库，redis等；
+
+### 思建网络
++ C++11的TypeList实现
++ C++11的std::move和std::forward内部实现原理
++ 网关模块设计
++ 快排序和归并时间空间复杂度；
++ 用shell统计出现最多的10个单词；
++ c++20的coroutine；
++ 模板的CRTP（Curiously Recurring Template Pattern）模式
++ 如何避免死锁
++ make_shared实现原理

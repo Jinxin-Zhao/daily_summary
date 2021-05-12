@@ -4,18 +4,27 @@
 - [2. Heap](#2-heap)
 - [3. HashMap](#3-hashmap)
 - [4. Map](#4-map)
-- [5. DFS & BFS](#5-dfs-bfs)
-- [6. Prime & Kruskal](#6-prime-kruskal)
-- [7. Floyd & Dijkstra](#7-floyd-dijkstra)
+- [5. DFS & BFS](#5-dfs--bfs)
+- [6. Prime & Kruskal](#6-prime--kruskal)
+  - [summary(undirected weighted graph)](#summaryundirected-weighted-graph)
+  - [Algorithm](#algorithm)
+    - [image:](#image)
+    - [Prime:](#prime)
+    - [Kruskal(depends on union_find set):](#kruskaldepends-on-union_find-set)
+- [7. Floyd & Dijkstra](#7-floyd--dijkstra)
+  - [summary(directed weighted graph)](#summarydirected-weighted-graph)
+  - [Floyd](#floyd)
+  - [Dijkstra](#dijkstra)
 - [8. Sorting](#8-sorting)
-    - [8.1. Insert Sort](#81-insert-sort)
-    - [8.2. Shell Sort](#82-shell-sort)
-    - [8.3. Select Sort](#83-select-sort)
-    - [8.4. Qucik Sort](#84-quick-sort)
-        - [8.4.1. Original Quick Sort](#841-original-quick-sort)
-        - [8.4.2. Application](#842-application)
-    - [8.5. Merge Sort](#85-merge-sort)
-    - [8.6. Radix Sort](#86-radix-sort)
+  - [8.1. Insert Sort](#81-insert-sort)
+  - [8.2. Shell Sort](#82-shell-sort)
+  - [8.3. Select Sort](#83-select-sort)
+  - [8.4. Quick Sort](#84-quick-sort)
+    - [8.4.1. Original Quick Sort](#841-original-quick-sort)
+    - [8.4.2. Application](#842-application)
+      - [8.4.2.1 Quick-SELECT Algorithm( find the kth-smallest number in O(n) )](#8421-quick-select-algorithm-find-the-kth-smallest-number-in-on-)
+  - [8.5. Merge Sort](#85-merge-sort)
+  - [8.6. Radix Sort](#86-radix-sort)
 <!-- TOC -->
 
 # 1. Priority queue
@@ -796,6 +805,9 @@ class map{
 
 ## 8.3. Select Sort
 ## 8.4. Quick Sort 
++ 如果快速排序每次都将数据分成相等的两部分，则快排的时间复杂度和归并排序相同，也是 O（nlogn），但这种情况是很难实现的。如果数据原来已经是有序的，则每次的分区都是不均等的，我们需要进行 n 次分区才能完成整个排序，此时快排的时间复杂度就退化成了 $O(n^2)$。
++ 平均时间复杂度的求解也可以通过递归树来分析，这个问题留待我们以后再解决。我们现在只需要知道，在大部分情况下，快速排序的时间复杂度都可以做到 O(nlogn)，只有在极端情况下，才会退化成 $O(n^2)$。
++ 快速排序是一个原地排序算法，是一个不稳定的排序算法，因为其在数据交换过程中可能会改变相等元素的原始位置。
 ### 8.4.1. Original Quick Sort
 ### 8.4.2. Application
 #### 8.4.2.1 Quick-SELECT Algorithm( find the kth-smallest number in O(n) )
@@ -850,4 +862,12 @@ class map{
 
 
 ## 8.5. Merge Sort
+
+$$ = 2*[2*T(\frac{n}{4}) + \frac{n}{2}] + n = 4*T(\frac{n}{4}) + 2*n $$
+$$ = 4*[2*T(\frac{n}{8}) + \frac{n}{4}] + 2*n = 8*T(\frac{n}{8}) + 3*n $$
+$$ ......$$
+$$ = 2^k * T(\frac{n}{2^k}) + k * n$$
+$$ ......$$
++ 从我们的分析可以看出，归并排序的执行效率与原始数据的有序程度无关，其时间复杂度是非常稳定的，不管是最好情况、最坏情况，还是平均情况，时间复杂度都是 O(nlogn)。
++ 归并排序有一个缺点，那就是它不是原地排序算法。在进行子数组合并的时候，我们需要临时申请一个数组来暂时存放排好序的数据。因为这个临时空间是可以重复利用的，因此归并排序的空间复杂度为O(n)，最多需要存放n个数据。
 ## 8.6. Radix Sort
