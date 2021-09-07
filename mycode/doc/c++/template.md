@@ -129,7 +129,7 @@ Now we want to package the 2 counter functions.
   //we can precisely solve lvalue & rvalue reference issue
   template <typename ArgT> void foo(ArgT && a);
   ```
-  if we want to limit ArgT in float or types derived from float(which my instantiated as "foo(float &)", "foo(float &&)", "foo(float)"), we'd better write the code like this:
+  if we want to limit ArgT in float or types derived from float(which may instantiated as "foo(float &)", "foo(float &&)", "foo(float)"), we'd better write the code like this:
   ```cpp
   template <typename ArgT>
   void foo(ArgT && a,typename std::enable_if<is_same<std::decay_t<ArgT>,float>::value>::type * = nullptr);

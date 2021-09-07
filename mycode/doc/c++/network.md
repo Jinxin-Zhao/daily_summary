@@ -1,4 +1,29 @@
-### userspace & kernelspace
+<!-- TOC -->
+- [1. Userspace and Kernelspace](#1-userspace-and-kernelspace)
+    - [I/O模式](#io模式)
+      - [阻塞IO](#阻塞io)
+      - [非阻塞IO](#非阻塞io)
+      - [I/O多路复用(IO multiplexing)](#io多路复用io-multiplexing)
+      - [异步I/O（asynchronous IO）](#异步ioasynchronous-io)
+    - [block & non-block, synchronize & nonsynchronize](#block--non-block-synchronize--nonsynchronize)
+      - [block & non-block](#block--non-block)
+      - [synchronize & nonsynchronize](#synchronize--nonsynchronize)
+    - [select & poll & epoll](#select--poll--epoll)
+      - [epoll](#epoll)
+- [2. BoostAsio](#2-boostasio)
+  - [Detail](#detail)
+  - [Async](#async)
+  - [post() vs dispatch()](#post-vs-dispatch)
+  - [run() vs poll()](#run-vs-poll)
+  - [stop()](#stop)
+  - [strand()](#strand)
+
+
+<!-- TOC -->
+
+
+
+# 1. Userspace and Kernelspace
 + 现在操作系统都采用虚拟存储器，对于32位操作系统而言，它的寻址空间(虚拟存储空间)为4G($2^{32}$ = 4 * $2^{10}$ * $2^{10}$ * $2^{10}$ B)。操作系统核心是内核，独立于普通的应用程序，可以访问受保护的内存空间，也有访问底层硬件设备的所有权限。为了保证用户进程不能直接操作内核，操作系统将虚拟空间划分为两部分： 内核空间，用户空间。 对于linux系统而言，将最高的1G字节(虚拟地址0xC0000000到oxFFFFFFFF)供内核使用，称为内核空间。将较低的3G字节(虚拟地址0x00000000到0xBFFFFFFF)供各进程使用，称为用户空间。
 + 进程切换： 为了控制进程执行，内核必须有能力挂起正在CPU上运行的进程，并恢复以前挂起的某个进程的执行。 从一个进程的运行转到另一个进程上运行，过程中经过下面这些变化：
   - 保存处理机上下文，包括程序计数器和其他寄存器；
@@ -84,3 +109,125 @@
       }
   }
   ```
+
+# 2. BoostAsio
+## Detail
++ No Deprecated:
+  - 在包含Asio头文件之前，定义宏BOOST_ASIO_NO_DEPRECATED,这样在编译的时候，Asio就会删除那些已经过时的接口。（例如在boost1.66中 io_service 已经改名为io_context），如果不定义上面的宏，还是可以使用io_serivce。
+  ```cpp
+  #define BOOST_ASIO_NO_DEPRECATED
+  
+  #include "boost/asio/io_context.hpp"
+  ....
+  ```
++ TCP Server的acceptor一般是这样构造的:
+```cpp
+/* function type */
+basic_socket_acceptor(boost::asio::io_context& io_context,
+      const endpoint_type& endpoint, bool reuse_addr = true)
+
+//以上这段代码相当于下面这一块：
+basic_socket_acceptor<Protocol> acceptor(io_context);
+acceptor.open(endpoint.protocol());
+if (reuse_addr)
+  acceptor.set_option(socket_base::reuse_address(true));
+acceptor.bind(endpoint);
+acceptor.listen(listen_backlog);
+
+/*用法*/
+//no need to point address
+tcp::acceptor(io_context,tcp::endpoint(tcp::v4(),port));
+//指定ip地址的用法
+tcp::acceptor(io_context,tcp::endpoint(asio::ip::make_address_v4(argv[1]),port));
+```
++ Resolver
+```cpp
+//resolve http protocal to endpoint
+  tcp::resolver resolver(io_context_);
+
+  tcp::resolver::results_type endpoints = resolver.resolve(address, port);
+
+  tcp::endpoint endpoint = *endpoints.begin();
+
+  acceptor_.open(endpoint.protocol());
+  acceptor_.set_option(tcp::acceptor::reuse_address(true));
+  acceptor_.bind(endpoint);
+  acceptor_.listen();
+
+  acceptor_.async_accept(...);
+
+```
+下面是不同的address对应的endpoint结果（假定port都是8080）
+  - "localhost" : [::1]:8080,v6; [127.0.0.1]:8080,v4
+  - "0.0.0.0": 0.0.0.0:8080,v4
+  - "0::0": [::]:8080,v6 
+
+## Async
++ Move Acceptable Handler
+async_accept接受两种Accepthandler:
+```cpp
+//move acceptable handler
+//第二个参数是新的accept的socket
+  template <typename MoveAcceptHandler>
+  BOOST_ASIO_INITFN_RESULT_TYPE(MoveAcceptHandler,
+      void (boost::system::error_code, typename Protocol::socket))
+  async_accept(BOOST_ASIO_MOVE_ARG(MoveAcceptHandler) handler)
+
+//normal handler,第一个参数是预先构造的socket
+  template <typename Protocol1, typename AcceptHandler>
+  BOOST_ASIO_INITFN_RESULT_TYPE(AcceptHandler,
+      void (boost::system::error_code))
+  async_accept(basic_socket<Protocol1>& peer,
+      BOOST_ASIO_MOVE_ARG(AcceptHandler) handler,
+      typename enable_if<is_convertible<Protocol, Protocol1>::value>::type* = 0)
+```
+对于Move Acceptable Handler，尽量不要使用bind，比如：
+```cpp
+void Server::HandleAccept(boost::system::error_code ec,boost::asio::ip::tcp::socket socket){}
+
+acceptor_.async_accept(std::bind(&Server::HandleAccept,this,std::placeholders::_1,std::placeholders::_2));
+```
+在vs2013环境下编译有问题，应该直接用lamda表达式：
+```cpp
+void DoAccept() {
+  //注意这里的socket是新接受的socket
+  acceptor_.async_accept(
+    [this](boost::system::error_code ec, boost::asio::ip::tcp::socket socket) {
+    // Check whether the server was stopped by a signal before this
+    // completion handler had a chance to run.
+    if (!acceptor_.is_open()) {
+      return;
+    }
+
+    if (!ec) {
+      connection_manager_.Start(
+        std::make_shared<Connection>(std::move(socket),
+        connection_manager_,
+        request_handler_));
+    }
+
+    DoAccept();
+  });
+}
+```
+
+## post() vs dispatch()
++ 区别就是： post()总是先把该handler加入事件队列，而dispatch()要求立即执行。
+BoostAsio的chat样例就是用到了post(),chat_client.cpp的write()函数之所以要使用post(),是为了避免临界区的同步问题。write()调用和do_write()里async_write()的执行分别属于两个线程，前者会向write_msgs_里写数据，后者会从中读数据。
+
+## run() vs poll()
++ run()和poll()都是循环执行I/O对象的事件，区别在于如果事件没有被触发(ready),run()会等待，但是poll()会立即返回。poll()会执行已经触发的I/O事件。
+比如I/O对象socket1, socket2, socket3都绑定了socket.async_read_some()事件，而此时socket1、socket3有数据过来。则调用poll()会执行socket1、socket3相应的handler，然后返回；而调用run()也会执行socket1和socket3的相应的handler，但会继续等待socket2的读事件。
+
+## stop()
++ 调用 io_service.stop() 会中止 run loop，一般在多线程中使用。
+
+## strand()
++ 在多线程中，多个I/O对象的handler要访问同一块临界区，此时可以使用strand来保证这些handler之间的同步。
+示例: 我们向定时器注册 func1 和 func2，它们可能会同时访问全局的对象(比如 std::cout )。这时我们希望对 func1 和 func2 的调用是同步的，即执行其中一个的时候，另一个要等待。
+```cpp
+boost::asio::strand  the_strand;
+t1.async_wait(the_strand.wrap(func1));      //包装为同步执行的
+t2.async_wait(the_strand.wrap(func2));
+```
+

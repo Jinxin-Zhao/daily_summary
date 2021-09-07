@@ -13,3 +13,4 @@ this is a marvolous keyboard.
 + second: press `ctrl + alt + fn` till the blue and red lights are on, and then loosen those keys;
 + third: press `keys(1~4)` to set the keys;
 + switch: press `ctrl + alt + fn`, then press the related key;
++ macos keymap: [2]
