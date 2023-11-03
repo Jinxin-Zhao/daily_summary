@@ -28,4 +28,4 @@ The code and documentation in this project are provided "as is" without any warr
 
 ## Contact
 
-For any inquiries, please contact John Smith at zhaojinxinfdu@gmail.com.
+For any inquiries, please contact Jasper at zhaojinxinfdu@gmail.com.
