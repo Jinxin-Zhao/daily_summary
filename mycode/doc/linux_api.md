@@ -12,6 +12,16 @@
 - [semaphore](#semaphore)
 <!-- TOC -->
 
+###SystemV_IPC vs POSIX_IPC 
+####History
++ UNIX两大贡献者贝尔实验室和BSD，在进程之间通信侧重不同，前者基于内核对进程之间的通信手段进行了改进，形成了“System V IPC”，而后者则是基于网络形成了套接字.
++ 而POSIX则是IEEE制定的标准，目的是为运行在不同操作系统上的软件提供统一的接口，实现者则是不同的操作系统内核开发人员。
+#### Efficiency
++ 在信号量这种常用的同步互斥手段方面，POSIX在无竞争条件下是不会陷入内核的，而SYSTEM V则是无论何时都要陷入内核，因此性能稍差。
+#### Redundancy
++ POSIX的sem_wait函数成功获取信号量后，进程如果意外终止，将无法释放信号量，而System V则提供了SEM_UNDO选项来解决这个问题。因此，相比而言，后者更加可靠
+
+
 # signal function
 + how the signal comes out:
     it can:
