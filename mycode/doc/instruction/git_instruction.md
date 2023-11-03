@@ -180,3 +180,33 @@ revert（推荐）:
     3. git commit -m xxx 
     4. git push origin [branch name]
 
+# git 常用cmd
++ 如果想要一次性add所有修改过的文件，而不想在git add指令后一个接一个地新增文件，可以使用
+```shell
+# 运行git add .命令将会将当前目录及其所有子目录下的所有修改的文件添加到暂存区（Index），准备提交到版本控制系统。这包括新创建的文件、修改过的文件和已删除的文件。
+
+]# git add . 
+
+# 需要注意的是，git add .会添加所有修改的文件，包括未跟踪的文件。如果你只想添加已跟踪的文件，可以使用git add -u命令。
+]# git add -u
+```
+
+## git 问题解决
++ **问题描述**： remote: Support for password authentication was removed on August 13, 2021 
+解决方案：
+    -  1.生成一个个人访问令牌：
+在 GitHub 网站上，点击右上角的头像，选择 "Settings"（设置）。
+在左侧菜单中，选择 "Developer settings"（开发者设置）。
+在左侧菜单中，选择 "Personal access tokens"（个人访问令牌）。
+点击 "Generate new token"（生成新令牌）按钮。
+提供令牌的描述，勾选需要的权限范围（例如 repo、gist、admin:org 等）。
+点击 "Generate token"（生成令牌）按钮。
+复制生成的访问令牌，它将是你进行身份验证的凭证。
+    - 2.更新 Git 仓库的远程 URL：
+    打开你的本地 Git 仓库目录。
+    运行以下命令更新远程 URL，将 <TOKEN> 替换为你生成的个人访问令牌：
+    ```shell
+    git remote set-url origin https://<USERNAME>:<TOKEN>@github.com/<OWNER>/<REPO>.git
+    ```
+    其中，<USERNAME> 是你的 GitHub 用户名，<OWNER> 是仓库的所有者，<REPO> 是仓库的名称。
+
