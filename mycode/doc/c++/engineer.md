@@ -1,14 +1,15 @@
 <!-- TOC -->
 
-[1. Timer](#1-Timer)
+[1. timer](#1-timer)
 [2. getUseFlag](#2-getUseFlag)
 [3. vsprintf](#3-vsprintf)
 [4. gdb](#4-gdb)
+[5. systemlink](#5-systemlink)
 
 <!-- TOC -->
 
 
-# 1. Timer
+# 1. timer
 ## simple timer
 + sleep:
     - 其中sleep精度是1秒，usleep精度是1微妙，具体代码就不写了。使用这种方法缺点比较明显，在Linux系统中，sleep类函数不能保证精度，尤其在系统负载比较大时，sleep一般都会有超时现象。
@@ -179,7 +180,8 @@ for(int i= 0; i < R_USELESS;i++){
 
 # 3. vsprintf
 - usage:
-        ```cpp
+
+```cpp
         #include <stdio.h>
         #include <stdarg.h>
 
@@ -207,7 +209,7 @@ for(int i= 0; i < R_USELESS;i++){
 
         //output
         5 27.00000 baidu.com
-        ```
+```
 
 # 4. gdb
 ### 堆栈信息显示问号
@@ -337,3 +339,153 @@ for(int i= 0; i < R_USELESS;i++){
    (gdb)
    ```
    这样我们知道了，前面的调用栈原来是通过main函数调用到b函数，接着再调用到我们core的函数，从而定位core的大概位置。
+   
+# 5. systemlink
++ 程序构建一般需要经历：预处理、编译、汇编、链接。其中链接链的就是目标文件(.o文件), 他和可执行文件的内容和结构很相似，格式几乎是一样的，可以堪称是同一种类型的文件，Linux下统称为ELF文件，以下是ELF文件标准：
+    - 可重定位文件：Linux中的.o,这类文件包含代码和数据，可被链接成可执行文件或共享目标文件，比如静态链接库。
+    - 可执行文件：可以直接执行的文件，如/bin/bash文件。
+    - 共享目标文件：Linux中的so，包含代码和数据。
+    - core dump文件：进程意外终止时，系统可以将该进程的地址空间的内容和其他信息存到coredump文件用于调试。
+可以通过file指令查看文件格式：
+    ```shell
+    ]# file test_epoll
+    # output:
+    # test_epoll: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, for GNU/Linux 3.7.0, BuildID[sha1]=66f3852255c1242ff2cdbf0bb6ce1177d398538b, not stripped
+    ```
++ 目标文件构成：文件头、代码段、数据段、其他
+    - 文件头：描述整个文件的文件属性(文件是否可执行、是静态链接还是动态链接、入口地址、目标硬件、目标操作系统等信息); 还包括段表，用来描述文件中各个段的数组，描述文件中各个段在文件中的偏移位置和段属性。
+    - 代码段：程序源代码遍以后的机器指令。
+    - 数据段：分为.data段和.bss段。
+        - .data段内容：已经初始化的全局变量和局部静态变量，static声明的变量也存储在数据段，属于静态内存分配。
+        【注意】初始化为0的全局变量还是被保存在BSS段。
+        - .bss段内容：未初始化的全局变量和局部静态变量，(.bss段只是为未初始化的全局变量和局部静态变量预留位置，本身没有内容，不占用空间)。
+    - 其他还包括.rodata段、.comment、字符串表、符号表、堆栈提示段等等，还可以自定义段。
+    - .rodata段(read-only-data) - 常量区；比如程序中定义为const的全局变量，#define定义的常量，以及诸如"Hello World"的字符串常量。只读数据，存储在ROM中。
+    【注意】const修饰的全局变量在常量区；const修饰的局部变量只是为了防止修改，没有放入常量区。编译器会去掉重复的字符串常量，程序的每个字符串常量只有一份，有些系统中rodata段是多个进程共享的，目的是为了提高空间利用率。
+
+    下面的程序验证了.bss段不占磁盘空间，.bss段占据的大小存放在ELF文件格式中的段表(Section Table)中，段表存放了各个段的各种信息，比如段的名字、段的类型、段在elf文件中的偏移、段的大小等信息。同时符号存放在符号表.symtab中。当文件加载运行时，才分配空间以及初始化。
+    ```cpp
+    // file: test_link.c
+    #include <stdio.h>
+    
+    int a[1000];
+    int b[1000] = {1};
+
+    int main() {
+        printf("test\n");
+        return 0;
+    }
+    
+    // ]# gcc test_link.c -o test
+    // ]# size test
+    // output:
+    // text  data  bss  dec  hex  filename
+    // 1512  4616  4032 10160 27b0 test
+
+    // 如果将上述代码:
+    // int a[1000]改成：
+    // int a[1000] = {1};
+
+    // ]# gcc test_link.c -o test
+    // ]# size test
+    // output:
+    // text  data  bss  dec  hex  filename
+    // 1512  8616  8   10136 2798 test
+
+
+    // 还可以自定义段
+    __attribute__((section("Custom"))) int global = 1;
+    // 通过readelf查看文件头信息
+    // ]# readelf -h test.o
+    // ]# readelf -S test.o 查看所有段信息
+
+    // 使用objdump查看ELF文件中包含的关键的段:
+    // ]# objdump -h test.o
+    ```    
++ 程序为什么要分成数据段和代码段
+    -  数据和指令被映射到两个虚拟内存区域，数据段对进程来说可读写，代码段是只读，这样可以防止程序的指令被有意无意的改写。
+    - 有利于提高程序局部性，现代CPU缓存一般被设计成数据缓存和指令缓存分离，分开对CPU缓存命中率有好处。
+    - 代码段是可以共享的，数据段是私有的，当运行多个程序的副本时，只需要保存一份代码段部分。
++ 链接器通过什么进行的链接
+链接的接口是符号，在链接中，将函数和变量统称为符号，函数名和变量名统称为符号名。链接过程的本质就是把多个不同的目标文件之间相互“粘”到一起，拼成一个整体。可以将符号看作是链接中的粘合剂，整个链接过程基于符号才可以正确完成，符号有很多类型，主要有局部符号和外部符号，局部符号只在编译单元内部可见，对于链接过程没有作用，在目标文件中引用的全局符号，却没有在本目标文件中被定义的叫做外部符号，以及定义在本目标文件中的可以被其它目标文件引用的全局符号，在链接过程中发挥重要作用。
+    ```shell
+    # 查看符号信息
+    ]# nm test.o
+    
+    ]# objdump -t test.o
+
+    ]# readelf -s test.o
+    ```
+## extern "C":
+C语言函数和变量的符号名基本就是函数名字变量名字，不同模块如果有相同的函数或变量名字就会产生符号冲突无法链接成功的问题，所以C++引入了命名空间来解决这种符号冲突问题。同时为了支持函数重载C++也会根据函数名字以及命名空间以及参数类型生成特殊的符号名称。由于C语言和C++的符号修饰方式不同，C语言和C++的目标文件在链接时可能会报错说找不到符号，所以为了C++和C兼容，引入了extern "C"，当引用某个C语言的函数时加extern "C"告诉编译器对此函数使用C语言的方式来链接，如果C++的函数用extern "C"声明，则此函数的符号就是按C语言方式生成的。
+以memset函数举例，C语言中以C语言方式来链接，但是在C++中以C++方式来链接就会找不到这个memset的符号，所以需要使用extern "C"方式来声明这个函数，为了兼容C和C++，可以使用宏来判断，用条件宏判断当前是不是C++代码，如果是C++代码则extern "C"。
+    ```cpp
+    #ifdef __cplusplus
+    extern "C" {
+    #endif
+    
+    void * memset(void *, int , size_t);
+    
+    #ifdef __cplusplus
+    }
+    #endif
+    ```
+## 强符号和弱符号
++ 我们经常编程中遇到的multiple definition of 'xxx'，指的是多个目标中有相同名字的全局符号的定义，产生了冲突，这种符号的定义指的是强符号。有强符号自然就有弱符号，编译器默认函数和初始化了的全局变量为强符号，未初始化的全局变量为弱符号。attribute((weak))可以定义弱符号。
+    ```cpp
+    extern int ext;
+
+    int weak; //弱符号
+    int strong = 1; //强符号
+    __attribute__ ((weak)) int weak2 = 2; //弱符号
+
+    int main() {
+        return 0;
+    }
+    ```
+    链接器规则：
+    - 不允许强符号被多次定义，多次定义就会multiple definition of 'xxx'
+    - 一个符号在一个目标文件中是强符号，在其它目标文件中是弱符号，选择强符号.（以定义了的符号为准）
+    - 一个符号在所有目标文件中都是弱符号，选择占用空间最大的符号，int类型和double类型选double类型
+一般引用了某个函数符号，而这个函数在任何地方都没有被定义，则会报错error: undefined reference to 'xxx'，这种符号引用称为强引用。与此对应的则有弱引用，链接器对强引用弱引用的处理过程几乎一样，只是对于未定义的弱引用，链接器不会报错，而是默认其是一个特殊的值。
+    ```cpp
+    __attribute__ ((weak)) void foo();
+
+    int main() {
+        foo();
+        return 0;
+    }
+    // 这里可以编译链接成功，运行此可执行程序，会报非法地址错误，所以可以做下面的改进：
+
+    int main() {
+        if (foo) foo();
+        return 0;
+    }
+    ```
++ 这种强引用弱引用对于库来说十分有用，库中的弱引用可以被用户定义的强引用所覆盖，这样程序就可以使用自定义版本的库函数，可以将引用定义为弱引用，如果去掉了某个功能，也可以正常连接接，想增加相应功能还可以直接增加强引用，方便程序的裁剪和组合。
+
+    ```cpp
+        // test2.c
+        #include <stdio.h>
+
+        void foo() {
+            printf("foo2\n");
+        }
+
+        //test3.c
+        #include <stdio.h>
+
+        void foo() {
+            printf("foo3\n");
+        }
+
+    // ]# gcc test.c test2.c -o a.out
+    // ]# ./a.out
+    // output: foo2    
+
+    // ]# gcc test.c test3.c -o a.out
+    // ]# ./a.out
+    // output: foo3 
+
+    ```
+对于弱符号和弱引用，其都仅是GNU工具链GCC对C语言语法的扩展，并不是C本身的语言特性。

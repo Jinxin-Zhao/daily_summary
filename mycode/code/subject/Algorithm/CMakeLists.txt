@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories(
         ${PROJECT_SOURCE_DIR}/
-        /usr/local/include/
+        /usr/local/include
 )
 
 set(LOG_SRC_FILE
@@ -15,4 +15,4 @@ set(LOG_SRC_FILE
         )
 
 add_executable(Algorithm ${LOG_SRC_FILE})
-target_link_libraries(Algorithm pthread gtest glog)
+target_link_libraries(Algorithm pthread)

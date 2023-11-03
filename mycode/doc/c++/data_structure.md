@@ -25,6 +25,8 @@
       - [8.4.2.1 Quick-SELECT Algorithm( find the kth-smallest number in O(n) )](#8421-quick-select-algorithm-find-the-kth-smallest-number-in-on-)
   - [8.5. Merge Sort](#85-merge-sort)
   - [8.6. Radix Sort](#86-radix-sort)
+- [9. Container](#9-container)
+  - [9.1. vector](#91-vector)
 <!-- TOC -->
 
 # 1. Priority queue
@@ -871,3 +873,38 @@ $$ ......$$
 + 从我们的分析可以看出，归并排序的执行效率与原始数据的有序程度无关，其时间复杂度是非常稳定的，不管是最好情况、最坏情况，还是平均情况，时间复杂度都是 O(nlogn)。
 + 归并排序有一个缺点，那就是它不是原地排序算法。在进行子数组合并的时候，我们需要临时申请一个数组来暂时存放排好序的数据。因为这个临时空间是可以重复利用的，因此归并排序的空间复杂度为O(n)，最多需要存放n个数据。
 ## 8.6. Radix Sort
+
+
+# 9. Container
+## 9.1. vector
++ 'delete' action in vector by iterator
++ C++ vector 容器利用类似于数组的连续内存空间来存储其元素，当利用其e r a s e eraseerase函数删除相应的元素之后，该容器会重新分配所有剩下的元素，同时e r a s e eraseerase函数会返回指向已经删除的那些元素的下一个元素的迭代器，以前所有指向被删除元素以后的元素的迭代器会失效.
+  ```cpp
+  //error
+  void del_vec(){
+      vector<int> myvector;
+      for(int i = 1; i <= 7; ++i){
+          myvector.push_back(i);
+      }
+      for(auto it = myvector.begin(); it != myvector.end(); ++it){
+          if(*it > 3){
+              myvector.erase(it);
+          }
+      }
+  }
+
+  //right
+  void del_vec(){
+      vector<int> myvector;
+      for(int i = 1; i <= 7; ++i){
+          myvector.push_back(i);
+      }
+      for(auto iter = myvector.begin(); iter != myvector.end();){
+          if(*iter > 3){
+              iter = myvector.erase(iter);
+          } else {
+              iter++;
+          }
+      }
+  }
+  ```

@@ -1,6 +1,7 @@
 <!-- TOC -->
 
 [1. SFINAE](#1-SFINAE)
+[2. Fold Expression](#2-fold-expression)
 
 <!-- TOC -->
 
@@ -236,4 +237,20 @@ Now we want to package the 2 counter functions.
     }
   ```
 
-    
+
+
+# 2. Fold Expression
++ since C++17, there is a feature to compute the result of using a binary operator over all the arguments of a parameter pack:
+  ```cpp
+  template <typename T>
+  auto foldSum(T... s){
+      return (... + s); // ((s1 + s2) + s3) ...
+  }
+  ```
+
+  |  Fold Expression   |   Evaluation  |
+  | ---- | ---- |
+  |  ( ... op pack )   |   (((pack1 op pack2) op pack3) ... op packN )|
+  |  ( pack op ... )   |   (pack1 op (...(packN-1 op packN))) |
+  |  ( init op ... op pack )   | (((init op pack1) op pack2) ... op packN ) |
+  |  ( pack op ... op init )   |   (pack1 op (...(packN op init))) |

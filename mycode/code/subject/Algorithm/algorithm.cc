@@ -4,6 +4,7 @@
 #include "LinklistStack.h"
 #include "LinklistQueue.h"
 #include "Heap.h"
+#include "BinaryTree.h"
 
 Fibonacci::Fibonacci(){
     m_item_array_f.push_back(1);
@@ -536,4 +537,55 @@ void MaxHeap::printdyheap(){
         std::cout<<m_vec[i]<<" ";
     }
     std::cout<<std::endl;
+}
+
+
+/******************************BinaryTree  Algorithm***************************/
+void CBinaryTree::CreatTree(int num){
+
+}
+
+void CBinaryTree::PrintEdge(CBinaryNode * head){
+    if (head == nullptr)
+        return ;
+    int height = getHeight(head,0);
+
+    std::unique_ptr<CBinaryNode [][2]>  pEdgeMap(new CBinaryNode[height][2]);
+    int length = setEdgeMap(head,0,pEdgeMap);
+    for (auto i = 0; i != length; ++i){
+        m_vec.push_back(pEdgeMap[i][0].m_value);
+    }
+    printLeafNotInMap(head,0,pEdgeMap);
+    //print right boundar
+    for(auto i = length - 1; i != -1; --i){
+        if(pEdgeMap[i][0] != pEdgeMap[i][1]){
+            m_vec.push_back(pEdgeMap[i][0].m_value);
+        }
+    }
+}
+
+int CBinaryTree::getHeight(CBinaryNode * head, int l){
+    if(head == nullptr){
+        return l;
+    }
+    return getHeight(head->left,l+1) > getHeight(head->right,l+1) ? getHeight(head->left,l+1) : getHeight(head->right,l+1);
+}
+
+int CBinaryTree::setEdgeMap(CBinaryNode * head,int l, std::unique_ptr<CBinaryNode[][2]> & edgeMap){
+    if(head = nullptr) return -1;
+    edgeMap[l][0] = edgeMap[l][0].IsNull() ? *head : edgeMap[l][0];
+    edgeMap[l][1] = *head;
+    setEdgeMap(head->left,l+1,edgeMap);
+    setEdgeMap(head->right,l+1,edgeMap);
+    return 0;
+}
+
+void CBinaryTree::printLeafNotInMap(CBinaryNode * head, int l, std::unique_ptr<CBinaryNode [][2]> & pEdgeMap)
+{
+    if (head == nullptr) return;
+    if (head->left == nullptr && head->right == nullptr && *head != pEdgeMap[l][0] && *head != pEdgeMap[l][1]) {
+        m_vec.push_back(head->m_value);
+    }
+    printLeafNotInMap(head->left, l + 1, pEdgeMap);
+    printLeafNotInMap(head->right, l + 1, pEdgeMap);
 }

@@ -1,5 +1,5 @@
 <!-- TOC -->
-- [1. Userspace and Kernelspace](#1-userspace-and-kernelspace)
+- [1. SystemIO](#1-systemio)
     - [I/O模式](#io模式)
       - [阻塞IO](#阻塞io)
       - [非阻塞IO](#非阻塞io)
@@ -17,13 +17,14 @@
   - [run() vs poll()](#run-vs-poll)
   - [stop()](#stop)
   - [strand()](#strand)
+- [3. Timer Vector](#3-timer-vector)
 
 
 <!-- TOC -->
 
 
 
-# 1. Userspace and Kernelspace
+# 1. SystemIO
 + 现在操作系统都采用虚拟存储器，对于32位操作系统而言，它的寻址空间(虚拟存储空间)为4G($2^{32}$ = 4 * $2^{10}$ * $2^{10}$ * $2^{10}$ B)。操作系统核心是内核，独立于普通的应用程序，可以访问受保护的内存空间，也有访问底层硬件设备的所有权限。为了保证用户进程不能直接操作内核，操作系统将虚拟空间划分为两部分： 内核空间，用户空间。 对于linux系统而言，将最高的1G字节(虚拟地址0xC0000000到oxFFFFFFFF)供内核使用，称为内核空间。将较低的3G字节(虚拟地址0x00000000到0xBFFFFFFF)供各进程使用，称为用户空间。
 + 进程切换： 为了控制进程执行，内核必须有能力挂起正在CPU上运行的进程，并恢复以前挂起的某个进程的执行。 从一个进程的运行转到另一个进程上运行，过程中经过下面这些变化：
   - 保存处理机上下文，包括程序计数器和其他寄存器；
@@ -231,3 +232,4 @@ t1.async_wait(the_strand.wrap(func1));      //包装为同步执行的
 t2.async_wait(the_strand.wrap(func2));
 ```
 
+# 3. Timer Vector

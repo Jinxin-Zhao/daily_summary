@@ -5,12 +5,156 @@
 - [3. vim editor](#3-vim-editor)
 - [4. ps command](#4-ps-command)
 - [5. shell grammar](#5-shell-grammar)
-- [6. grep & xargs](#6-grep-xargs)
+- [6. grep & xargs](#6-grep--xargs)
+- [7. sort](#7-sort)
 
 <!-- TOC -->
 
 ### 1. awk
-+ 
++ run mode:
+  ```shell
+  # 1. awk 'program' input files
+  $ awk '$3 == 0 { print $1 }' file1 file2
+
+  # 2. awk 'program' 
+  # interact mode
+  $ awk '$3 == 0 {print $1}'
+  # input: Beth 3.00 0
+  # output: Beth
+
+  # 3. awk -f progfile optional list of files
+  $ awk -f files1.awk
+  ```
+
+
+  - the 'program' consists of [pattern {action}]
+  $3 == 0 is pattern;
+  print $1 is action
+  - pattern and action can be ignored either
+
+  - print all the rows whose 3th column value is 0
+  $ awk '$3 == 0' file1
+
+  - print column 1
+  $ awk '{ print $1 }' file1
+
++ built-in variable
+  - NR(row number)
+  ```shell
+  $ awk '{print NR, $0}' inputfile1
+  # output:
+  1  Beth  4.00 0
+  2  Dan   3.75 0
+  3  Kathy 4.00 10
+  4  Mark  5.00 20
+  ```
++ BEGIN & END
+    - special mode 'BEGIN' matches before the first row of the first file, 'END' matches after the last row of the last file.
+    ```shell
+    BEGIN { print " Head " }
+          { print }
+    END   { print "End" }
+    ```
+
++ regular expression(正则表达式)
+  ```shell
+  # action class
+  1.  / regexpr /     # 当当前输入行包含一段能够被 regexpr 匹配的子字符串时, 该模式被匹配
+  2.  expression ~ / regexpr /   # 如果 expression 的字符串值包含一段能够被 regexpr 匹配的子字符时, 该模式被匹配
+  3.  expression !~ / regexpr /  # 如果 expression 的字符串值不包含能够被 regexpr 匹配的子字符串, 该模式被匹配
+
+  example:
+    $4 !~  / Asia /  # 匹配所有第四个字段不包含Asia的输入行
+
+    / Asia /  其实是 $0 ~ / Asia / 的简写形式
+  ```
+
+  - metacharacter(元字符)包括:
+  
+  \ ^ $ . [] | () * + ?
+  这些运算符组合起来:
+  ```shell
+  选择: A|B    # A 或 B
+  拼接: AB     # AB
+  闭包: A*     # 0个或多个A
+  正闭包: A+   # 匹配一个或多个A
+  零或一: A?   # 空字符串或A  
+
+    . 号匹配任意一个字符
+  ^.$         # 匹配有且仅有一个字符的字符串
+  ^...$       # 匹配有且仅有3个字符的字符串
+  \.$         # 匹配以句点结束的字符串 
+
+    complemented(互补)字符类在[之后以^开始。
+
+    ^[ABC]    # 匹配以A，B，或C开始的字符串
+    ^[^ABC]   # 匹配以任意一个字符（除了A，B,C）开始的字符串
+    [^ABC]    # 匹配任意一个字符，除了A,B,C
+    ^[^a-z]$  # 匹配任意一个有且仅有一个字符的字符串，且该字符不能是小写字母
+  
+  
+    /^[0-9]+$/
+    匹配含有且只含有数字的输入行. 
+    
+    /^[0-9][0-9][0-9]$/
+    输入行有且仅有 3 个数字.
+    
+     /^(\+|-)?[0-9]+\.?[0-9]*$/
+     十进制小数, 符号与小数部分是可选的.
+     
+      /^[+-]?[0-9]+[.]?[0-9]*$/
+      也是匹配十进制小数, 带有可选的符号与小数部分. 
+      
+      /^[+-]?([0-9]+[.]?[0-9]*|[.][0-9]+)([eE][+-]?[0-9]+)?$/
+      浮点数, 符号与指数部分是可选的.
+
+      /^[A-Za-z][A-Za-z0-9]*$/
+      一个字母, 后面再跟着任意多个字母或数字 (比如 awk 的变量名).
+
+      /^[A-Za-z]$|^[A-Za-z][0-9]$/
+      一个字母, 又或者是一个后面跟着一个数字的字母 (比如 Basic 的变量名).
+      
+       /^[A-Za-z][0-9]?$/
+       同样是一个字母, 又或者是一个后面跟着一个数字的字母.
+  
+  
+  ```
+
+  - 范围模式(被逗号隔开)
+  pat1, pat2    //  这些输入行从匹配 pat1 的行开始, 到匹配 pat2 的行结束, 包括这两行
+   
+    ```shell
+    # example
+    变量FNR表示从当前输入文件中，到目前为止读取到的行数；变量FILENAME表示当前输入文件名；两者都是内建变量；
+
+    FNR == 1, FNR == 5 { print FILENAME ": " $0}   # 打印每一个输入文件的前5行
+    或者写成
+    FNR <= 5 { print FILENAME ": " $0}
+    
+    ```
+
+     | 变量 | 意义 | 默认值 |
+     | ---- | ---- | ---- |
+     |  ARGC  |  命令行参数的个数   |  -  | 
+     |  ARGV  |  命令行参数数组     |  -  | 
+     |  FILENAME  |  当前输入文件名 |  -  | 
+     |  FNR  |  当前输入文件中的记录号   |  -  | 
+     |  FS  |  控制着输入行的字段分割符   |  " "  | 
+     |  NF  |  当前记录的字段个数   |  -  | 
+     |  NR  |  目前为止已读的记录数量   |  -  | 
+     |  OFMT  |  数值的输出格式   |  "%.6g"  | 
+     |  OFS  |  输出字段分割符   |  " "  | 
+     |  ORS  |  输出的记录的分割符   |  "\n"  | 
+     |  RLENGTH  |  被函数match匹配的字符串的长度   |  -  | 
+     |  RS  |  控制着输出行的记录分割符   |  "\n"  | 
+     |  RSTART  |  被函数match匹配的字符串的开始   |    | 
+     |  SUBSEP  |  下标分割符   |  "\034"  | 
+
+
+    ```shell
+    FS = OFS = "\t"      # 设置输入和输出的分割符
+    ```
+
 ### 2. sed
 + delete sepecified rows：
     ```cpp
@@ -84,6 +228,45 @@
     4
     5
     //delete row contains 'co' and the row behind co
+
+    ]# cat tmp.txt
+    123456789
+    123456789
+    123456789
+    ]# sed 's/.//' tmp.txt
+    23456789
+    23456789
+    23456789
+    // delete the first char per row
+
+    ]# sed 's/..//' tmp.txt
+    // delete the first 2 chars per row
+    3456789
+    3456789
+    3456789
+
+    ]# sed 's/.\{5\}//' tmp.txt
+    // delete the first 5 chars per row
+    6789
+    6789
+    6789
+
+    ]# sed 's/.$//' tmp.txt
+    // delete the last char
+    678
+    678
+    678
+
+    ]# sed 's/^/"&/g' tmp.txt
+    //add " at the first position per row
+    //"123456789
+    //"123456789
+    //"123456789
+
+    ]# cat tmp.txt | sed 's/^/"&/g' | sed 's/$/",&/g'
+    //"123456789",
+    //"123456789",
+    //"123456789",
 
     ```
 
@@ -197,6 +380,12 @@
     if [ ! -d "/myfolder" ]; then
     mkdir /myfolder
     fi
+
+
+    # shell脚本单引号里面引用变量只需要将变量用单引号包上
+    filename='$2'
+    echo 'file from a is '$filename''
+
     
     #shell判断文件,目录是否存在或者具有权限
     
@@ -206,7 +395,7 @@
     
     # -x 参数判断 $folder 是否存在并且是否具有可执行权限
     if [ ! -x "$folder"]; then
-    mkdir "$folder"
+    mkdir "$folder" 
     fi
     
     # -d 参数判断 $folder 是否存在
@@ -232,6 +421,21 @@
     echo '$var1 not eq $var2'
     fi    
     ```
+
++ function call with parameter
+  ```shell
+
+  function fname()
+  {
+      echo $1, $2  # $1 is the arg1 delivered, $2 is the arg2 delivered
+
+      echo "$@"    # print all the parameters in list way
+
+      echo "$*"    # just like $@, but the parameters are regarded as signle entities respectively
+  }
+
+    fname arg1 arg2;  # parameter deliver
+  ```
 
 ### 6. grep & xargs
 + grep
@@ -330,3 +534,74 @@
     输出：
     ./2.txt ./3.txt ./1.txt
     ```
+
+# 7. sort
+```shell
+$ cat file.txt
+# abhishek
+# watish
+# 123test
+# zajan
+# Wechat
+# divyam
+
+$ sort file.txt
+# 123test
+# abhishek
+# divyam
+# watish
+# Wechat
+# zajan
+
+# 当有一个文件包含大写和小写字母的混合时，首先忽略大小写，都当成小写字母，从第一位开始往后对比，如果还判断不出，再按照实际大小写对比。
+$ cat mix.txt
+# Appla
+# abc
+# abcd
+# ABC
+# apple
+
+$ sort mix.txt
+# abc
+# ABC
+# abcd
+# Appla
+# apple
+
+# 默认升序，加上-r参数可实现倒序
+$ sort -r inputfile.txt
+
+# 默认情况下sort会把数字当作字符来执行排序，如果想要按照数字可以如下
+$ sort -n filename.txt
+
+# 倒序
+$ sort -rn number.txt
+
+# 对指定列进行排序
+$ sort -k 2n filename.txt
+
+# 去掉重复的行
+$ sort -u duplicate.txt
+
+#######
+# 多列正排序，倒排序
+$ cat multiple.txt
+# 张三，26,5000
+# 李四，30,3000
+# 王五，26,4500
+# 陈六，23,5000
+
+# 按照收入从高到低排列
+$ sort -t ',' -k 3r multiple.txt
+# 陈六，23,5000
+# 张三，26,5000
+# 王五，26,4500
+# 李四，30,3000
+
+# 按照收入从高到低，并且按照年龄从大到小
+$ sort -t ',' -k 3r -k 2r multiple.txt
+# 张三，26,5000
+# 陈六，23,5000
+# 王五，26,4500
+# 李四，30,3000
+```

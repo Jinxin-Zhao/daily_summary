@@ -1,4 +1,15 @@
-# # chapter 3 sharing data betweening threads
+<!-- TOC -->
+
+- [chapter 3 sharing data betweening threads](#chapter-3-sharing-data-betweening-threads)
+- [chapter 4](#chapter-4)
+- [chapter 5 Memory Model and atomic](#chapter-5-memory-model-and-atomic)
+- [chapter 6 Designing structures for concurrency](#chapter-6-designing-structures-for-concurrency)
+- [chapter 7 Lock-free Concurrent Data Structure](#chapter-7-lock-free-concurrent-data-structure)
+
+<!-- TOC -->
+
+
+# chapter 3 sharing data betweening threads
 ### 3 ways to deal with problematic race conditions:
     - the simplest option is to wrap your data structure with a protection mechanism,to ensure that only the thread actually performing a modification can see the intermediate states where the invariants are broken;
     - another option is to modify the design of your data structure and its invariants so that modifications are done as series if indivisible changes,each of which preserves the invariants.This is generally referred to as lock-free programming;
@@ -75,6 +86,38 @@
     //condition_variable::wait_for(): put thread in 'waiting' status until a period of time ends or be awakened by notify_xxx();
     //condition_variable::wait_until(): put thread in 'waiting' status until the appointed time or be awakened by notify_xxx(); 
     ```
++ condition_variable(fake awake) 虚假唤醒
+  ```cpp
+  // wait
+  lock(mutex);
+  while(queue.empty()) {
+    cond.wait();
+  }
+  x = queue.pop();
+  unlock(mutex);
+
+  // signal/broadcast
+  lock(mutex);
+  queue.push_back(x);
+  unlock(mutex);
+  cond.notify();
+
+  
+  // 在wait端，我们必须把判断布尔条件和wait()放到while循环中，而不能用if语句，原因是可能会引起虚假唤醒。
+  // 举个例子，我们现在有一个生产者-消费者队列和三个线程。
+
+  // 1） 1号线程从队列中获取了一个元素，此时队列变为空。
+
+  // 2） 2号线程也想从队列中获取一个元素，但此时队列为空，2号线程便只能进入阻塞(cond.wait())，等待队列非空。
+
+  // 3） 这时，3号线程将一个元素入队，并调用cond.notify()唤醒条件变量。
+
+  // 4） 处于等待状态的2号线程接收到3号线程的唤醒信号，便准备解除阻塞状态，执行接下来的任务(获取队列中的元素)。
+
+  // 5） 然而可能出现这样的情况：当2号线程准备获得队列的锁，去获取队列中的元素时，此时1号线程刚好执行完之前的元素操作，返回再去请求队列中的元素，1号线程便获得队列的锁，检查到队列非空，就获取到了3号线程刚刚入队的元素，然后释放队列锁。
+
+  // 6） 等到2号线程获得队列锁，判断发现队列仍为空，1号线程“偷走了”这个元素，所以对于2号线程而言，这次唤醒就是“虚假”的，它需要再次等待队列非空。
+  ```
 + why using lock with condition_variable instead of mutex
   - for exception safe in multithreads:
   ```cpp
@@ -165,7 +208,7 @@ the best choice of synchronization mechanism.
 ###packaged_task<> & std::promise
 + std::packaged_task cannot be copied, it ties a future to the result of a function call: when the function completes,the future is ready, and the associated data is the value returned by the function;
 
-# Chapter 5 C++ Memory Model & atomic
+# Chapter 5 Memory Model and atomic
 ### atomic variable
 + The Standard atomic types are not copyable or assignable in the conventional sense(they have no copy constructors or copy assignment operators).
     However,they do support assignment from and implicit conversion to the corresponding built-in types.
@@ -630,7 +673,7 @@ the best choice of synchronization mechanism.
 # Chapter 6 Designing structures for concurrency
 + The use of a mutex to protect a data structure does so by exlicitly preventing true concurrent access to the data it protects. This is called **serialization**： threads take turns to access the data protected by the mutex.
 
-# Chapter 7 Designing Data Structure for Concurrency: Lock-free Concurrent Data Structure
+# Chapter 7 Lock-free Concurrent Data Structure
 + It's worth bearing in mind that only std::atomic_flag is guaranteed not to use locks in the implementation,so on some platforms what appears to be lock-free code might actually be using locks internal to the C++ STL implementation.
 #### Writing a thread-safe stack without locks
 + the simplest stack is just a linked list(采用头插法).
