@@ -38,6 +38,6 @@ vector<int> preorder(TreeNode * root)
 
 int main()
 {
-
+    cout << "start to traverse tree" << endl;
     return 0;
 }
