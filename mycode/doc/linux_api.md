@@ -21,6 +21,38 @@
 #### Redundancy
 + POSIX的sem_wait函数成功获取信号量后，进程如果意外终止，将无法释放信号量，而System V则提供了SEM_UNDO选项来解决这个问题。因此，相比而言，后者更加可靠
 
+# disk partition
++ command 'fdisk -l'
+  ```shell
+	Disk /dev/vda: 100 GiB, 107374182400 bytes, 209715200 sectors
+	Units: sectors of 1 * 512 = 512 bytes
+	Sector size (logical/physical): 512 bytes / 512 bytes
+	I/O size (minimum/optimal): 512 bytes / 512 bytes
+	Disklabel type: dos
+	Disk identifier: 0xf4bb72a5
+
+	Device     Boot Start       End   Sectors  Size Id Type
+	/dev/vda1        2048 209715166 209713119  100G 83 Linux
+
+	Disk /dev/vdb: 3.91 TiB, 4294967296000 bytes, 8388608000 sectors
+	Units: sectors of 1 * 512 = 512 bytes
+	Sector size (logical/physical): 512 bytes / 512 bytes
+	I/O size (minimum/optimal): 512 bytes / 512 bytes
+	Disklabel type: gpt
+	Disk identifier: 83B6FD8D-BF73-45C6-AE49-265E027737AA
+
+	Device     Start        End    Sectors  Size Type
+	/dev/vdb1   2048 8388605951 8388603904  3.9T Linux filesystem
+  ```
+If you want to create a disk whose volume > 2T, you'd better use parted tool following the next steps:
+	- providing we have a new disk dev '/dev/vdb' (volume = 3.91TiB > 2TiB), run command [$ sudo parted /dev/vdb]
+ 	- (parted) mklabel gpt (creating gpt partition tables)
+  	- (parted) mkpart primary ext4 0% 100%  #create a new partition 3.91TiB
+   	- (parted) quit
+    	- sudo mkfs.ext4 /dev/vdb # creating file system
+     	- sudo mount -t ext4 /dev/vdb1 /opt # mount the disk
+        - df -h # check if the operation mount is executed successfully
+
 
 # signal function
 + how the signal comes out:
