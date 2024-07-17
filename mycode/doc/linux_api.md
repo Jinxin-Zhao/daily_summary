@@ -44,7 +44,7 @@
 	Device     Start        End    Sectors  Size Type
 	/dev/vdb1   2048 8388605951 8388603904  3.9T Linux filesystem
   ```
-If you want to create a disk whose volume > 2T, you'd better use parted tool following the next steps:
++ If you want to create a disk whose volume > 2T, you'd better use parted tool following the next steps:
 	- providing we have a new disk dev '/dev/vdb' (volume = 3.91TiB > 2TiB), run command [$ sudo parted /dev/vdb]
  	- (parted) mklabel gpt (creating gpt partition tables)
   	- (parted) mkpart primary ext4 0% 100%  #create a new partition 3.91TiB
