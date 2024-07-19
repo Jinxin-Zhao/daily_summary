@@ -1,16 +1,11 @@
-<!-- TOC -->
+[TOC]
 
-- [signal function](#signal-function)
-- [getopt function](#getopt-function)
-- [malloc](#malloc)
-- [process communication](#process-communication)
-  - [pipe](#pipe)
-  - [name pipe（有名管道）](#name-pipe有名管道)
-- [interrupt](#interrupt)
-    - [hard interrupt](hard-interrupt)
-    - [soft interrupt](soft-interrupt)
-- [semaphore](#semaphore)
-<!-- TOC -->
+# Modify default shell
++ ]$ echo $SHELL
+  /bin/sh
++ ]$ sudo usermod -s /bin/bash username
+
+
 
 ###SystemV_IPC vs POSIX_IPC 
 ####History
