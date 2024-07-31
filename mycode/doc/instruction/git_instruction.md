@@ -210,3 +210,26 @@ revert（推荐）:
     ```
     其中，<USERNAME> 是你的 GitHub 用户名，<OWNER> 是仓库的所有者，<REPO> 是仓库的名称。
 
++ **问题描述**：git pull 突然卡住
+    - 问题分析：这个问题就是DNS解析被污染了，有两种可能：
+        - DNS解析被运营商劫持了
+        - 使用了VPN（概率比较大）
+    - 解决方案：
+    ```shell
+    # ssh -v命令中的 -v 代表verbose
+    ]$ ssh -vT git@github.com
+    # output
+    OpenSSH_8.0p1, OpenSSL 1.1.1k  FIPS 25 Mar 2021
+    debug1: Reading configuration data /etc/ssh/ssh_config
+    debug1: Reading configuration data /etc/ssh/ssh_config.d/05-redhat.conf
+    debug1: Reading configuration data /etc/crypto-policies/back-ends/openssh.config
+    debug1: configuration requests final Match pass
+    debug1: re-parsing configuration
+    debug1: Reading configuration data /etc/ssh/ssh_config
+    debug1: Reading configuration data /etc/ssh/ssh_config.d/05-redhat.conf
+    debug1: Reading configuration data /etc/crypto-policies/back-ends/openssh.config
+    debug1: Connecting to github.com [20.205.243.166] port 22.
+    debug1: connect to address 20.205.243.166 port 22: Connection refused
+    ssh: connect to host github.com port 22: Connection refused
+    ```
+    上面的信息显示github的地址是20.205.243.166，显然是DNS解析出错了，可以通过网址(https://www.ipaddress.com)来查询，直接在框子中输入github.com点击搜索，直接会显示出IP地址，然后将此映射加入/etc/hosts文件。

@@ -1,12 +1,7 @@
-<!-- TOC -->
+[toc]
 
-[1. timer](#1-timer)
-[2. getUseFlag](#2-getUseFlag)
-[3. vsprintf](#3-vsprintf)
-[4. gdb](#4-gdb)
-[5. systemlink](#5-systemlink)
+---
 
-<!-- TOC -->
 
 
 # 1. timer
@@ -489,3 +484,9 @@ C语言函数和变量的符号名基本就是函数名字变量名字，不同�
 
     ```
 对于弱符号和弱引用，其都仅是GNU工具链GCC对C语言语法的扩展，并不是C本身的语言特性。
+
+
+# Redis缓存里的淘汰机制
++ 配置里默认不淘汰，Redis可以帮助按照默认LRU
++ 缓存带来的风险： 单机缓存程序core掉；分布式锁的缓存，按照主从，ReadLock太复杂；
++ 缓存击穿，缓存穿透（布隆过滤器），缓存雪崩问题 

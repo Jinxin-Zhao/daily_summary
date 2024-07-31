@@ -1,41 +1,41 @@
+[toc]
 
-<!-- TOC -->
-- [1. Python Base](#1-python-base)
-- [2. Python Library](#2-python-library)
-<!-- TOC -->
+---
+
+
 # 1. Python Base
 
-### python 下划线五种含义
+## python 下划线五种含义
 (https://zhuanlan.zhihu.com/p/36173202)
-#### 单前导下划线：_var
+### 单前导下划线：_var
 + 下划线前缀的含义是告知其他程序员：以单个下划线开头的变量或方法仅供内部使用。 该约定在PEP 8中有定义。相当于私有变量命名。
 
-#### 单末尾下划线：var_
+### 单末尾下划线：var_
 + 有时候，一个变量的最合适的名称已经被一个关键字所占用。 因此，像class或def这样的名称不能用作Python中的变量名称。 在这种情况下，你可以附加一个下划线来解决命名冲突。
 
 
-#### 双前导下划线：__var
+### 双前导下划线：__var
 + 双下划线前缀会导致Python解释器重写属性名称，以避免子类中的命名冲突。这也叫做名称修饰(name mangling),解释器更改变量的名称，以便在类被扩展的时候不容易产生冲突。
 
-#### 双前导和末尾下划线：__var__
+### 双前导和末尾下划线：__var__
 + 也许令人惊讶的是，如果一个名字同时以双下划线开始和结束，则不会应用名称修饰。 由双下划线前缀和后缀包围的变量不会被Python解释器修改.这些dunder方法通常被称为神奇方法 - 但Python社区中的许多人（包括我自己）都不喜欢这种方法。
 最好避免在自己的程序中使用以双下划线（“dunders”）开头和结尾的名称，以避免与将来Python语言的变化产生冲突。
 
 
-#### 单下划线：_
+### 单下划线：_
 
 
-### List
-#### List遵循左闭又开的区间原则： 比如
+## List
+### List遵循左闭又开的区间原则： 比如
   ```python
   planets = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']
   planets[1:-1]    #All the planets except the first and last .  [1, end)
   ```
-#### Lists are "mutable"
+### Lists are "mutable"
   ```python
   planets[3] = 'Malacandra'
   ```
-#### functions
+### functions
 + len(planets), sorted(planets), sum(planets),min(planets),max(planets)
   ```python
     list.append()
@@ -46,14 +46,14 @@
     "Earth" in planets    # it will return True
   ```
 
-### Tuples
-#### The syntax for creating them uses parentheses instead of square brackets
+## Tuples
+### The syntax for creating them uses parentheses instead of square brackets
   ```python
   t = (1,2,3) 
   t = 1,2,3   # equivalent to above
 
   ```
-#### The Tuple is immutable
+### The Tuple is immutable
 + the as_integer_ratio() method of float objects returns a numerator(分子) and a denominator(分母) in the form of a tuple
   ```python
 
@@ -68,9 +68,9 @@
     # 0.125
   ```
 
-### String
-#### immutable
-#### '' & ""
+## String
+### immutable
+### '' & ""
 + string single quote and double quotes
     ```python
         print("Pluto's a planet!")
@@ -88,12 +88,51 @@
     claim.index('plan') # output 11
   ```
 
-### Dictionaries
+## Dictionaries
 + Dictionaries are a built-in Python data structure for mapping keys to values.
   ```python
     numbers = {'one':1, 'two':2, 'three':3}
   ```
 
+## call function
++ __call__ is used to implement forward in "nn.model",该方法的功能类似于在类中重载 () 运算符，使得类实例对象可以像调用普通函数那样，以“对象名()”的形式使用。作用：为了将类的实例对象变为可调用对象。
+
+  ```python
+    class Module(nn.Module):
+      def __init__(self):
+        super().__init__()
+        # ......
+      
+      def forward(self, x):
+        # ......
+        return x
+    
+    # input data
+    data = ....
+
+    model = Module()
+
+    model(data)
+
+    # the clause above is equal to 
+    model.forward(data)
+
+
+  ##### example #####
+  class Student:
+    def __call__(self, param):
+      print('call function, param type {}, value {}'.format(type(param), param))
+      res = self.forward(param)
+      return res
+
+    def forward(self, input_):
+      print("forward called")
+      return input_
+
+    a = Student()
+    input_param = a('data')
+    print('the input param: ', input_param)
+  ```
 
 # 2. Python Library
 
