@@ -1,16 +1,11 @@
-<!-- TOC -->
+[TOC]
 
-- [signal function](#signal-function)
-- [getopt function](#getopt-function)
-- [malloc](#malloc)
-- [process communication](#process-communication)
-  - [pipe](#pipe)
-  - [name pipe（有名管道）](#name-pipe有名管道)
-- [interrupt](#interrupt)
-    - [hard interrupt](hard-interrupt)
-    - [soft interrupt](soft-interrupt)
-- [semaphore](#semaphore)
-<!-- TOC -->
+# Modify default shell
++ ]$ echo $SHELL
+  /bin/sh
++ ]$ sudo usermod -s /bin/bash username
+
+
 
 ###SystemV_IPC vs POSIX_IPC 
 ####History
@@ -20,6 +15,108 @@
 + 在信号量这种常用的同步互斥手段方面，POSIX在无竞争条件下是不会陷入内核的，而SYSTEM V则是无论何时都要陷入内核，因此性能稍差。
 #### Redundancy
 + POSIX的sem_wait函数成功获取信号量后，进程如果意外终止，将无法释放信号量，而System V则提供了SEM_UNDO选项来解决这个问题。因此，相比而言，后者更加可靠
+
+# disk partition
++ command 'fdisk -l'
+  ```shell
+	Disk /dev/vda: 100 GiB, 107374182400 bytes, 209715200 sectors
+	Units: sectors of 1 * 512 = 512 bytes
+	Sector size (logical/physical): 512 bytes / 512 bytes
+	I/O size (minimum/optimal): 512 bytes / 512 bytes
+	Disklabel type: dos
+	Disk identifier: 0xf4bb72a5
+
+	Device     Boot Start       End   Sectors  Size Id Type
+	/dev/vda1        2048 209715166 209713119  100G 83 Linux
+
+	Disk /dev/vdb: 3.91 TiB, 4294967296000 bytes, 8388608000 sectors
+	Units: sectors of 1 * 512 = 512 bytes
+	Sector size (logical/physical): 512 bytes / 512 bytes
+	I/O size (minimum/optimal): 512 bytes / 512 bytes
+	Disklabel type: gpt
+	Disk identifier: 83B6FD8D-BF73-45C6-AE49-265E027737AA
+
+	Device     Start        End    Sectors  Size Type
+	/dev/vdb1   2048 8388605951 8388603904  3.9T Linux filesystem
+  ```
++ normal partition by using fdisk command
+  ```shell
+	]$ sudo fdisk /dev/vdb
+  	Welcome to fdisk (util-linux 2.37.2).
+	Changes will remain in memory only, until you decide to write them.
+	Be careful before using the write command.
+
+	Command (m for help): n
+	Partition number (1-128, default 1): 1
+	First sector (34-8388607966, default 2048):
+	Last sector, +/-sectors or +/-size{K,M,G,T,P} (2048-8388607966, default 8388607966): +3T
+
+	Created a new partition 1 of type 'Linux filesystem' and of size 3 TiB.
+	Partition #1 contains a ext4 signature.
+
+	Do you want to remove the signature? [Y]es/[N]o: Y
+
+	The signature will be removed by a write command.
+
+	Command (m for help): wq
+	The partition table has been altered.
+	Calling ioctl() to re-read partition table.
+	Syncing disks.
+	#################################################################################################
+  	]$ sudo fdisk /dev/vdb
+  	Welcome to fdisk (util-linux 2.37.2).
+	Changes will remain in memory only, until you decide to write them.
+	Be careful before using the write command.
+
+	Command (m for help): n
+	Partition number (2-128, default 2): 2
+	First sector (6442452992-8388607966, default 6442452992):
+	Last sector, +/-sectors or +/-size{K,M,G,T,P} (6442452992-8388607966, default 8388607966):
+
+	Created a new partition 2 of type 'Linux filesystem' and of size 928 GiB.
+
+	Command (m for help): wq
+	The partition table has been altered.
+	Calling ioctl() to re-read partition table.
+	Syncing disks.
+	#################################################################################################
+  	]$ sudo fdisk -l
+  	Disk /dev/vda: 100 GiB, 107374182400 bytes, 209715200 sectors
+	Units: sectors of 1 * 512 = 512 bytes
+	Sector size (logical/physical): 512 bytes / 512 bytes
+	I/O size (minimum/optimal): 512 bytes / 512 bytes
+	Disklabel type: dos
+	Disk identifier: 0xf4bb72a5
+
+	Device     Boot Start       End   Sectors  Size Id Type
+	/dev/vda1        2048 209715166 209713119  100G 83 Linux
+
+
+	Disk /dev/vdb: 3.91 TiB, 4294967296000 bytes, 8388608000 sectors
+	Units: sectors of 1 * 512 = 512 bytes
+	Sector size (logical/physical): 512 bytes / 512 bytes
+	I/O size (minimum/optimal): 512 bytes / 512 bytes
+	Disklabel type: gpt
+	Disk identifier: C392134C-B132-406D-A449-6D13175269FE
+
+	Device          Start        End    Sectors  Size Type
+	/dev/vdb1        2048 6442452991 6442450944    3T Linux filesystem
+	/dev/vdb2  6442452992 8388607966 1946154975  928G Linux filesystem
+  	#################################################################################################
+  	]$ sudo mkfs.ext4 /dev/vdb1
+  	]$ sudo mkfs.ext4 /dev/vbd2
+	]$ lsblk -f # check the filesystem format of each disk block
+  	]$ sudo mount /dev/vdb1 /mnt/first
+  	]$ sudo mount /dev/vdb2 /mnt/second
+  ```
++ If you want to create a disk whose volume > 2T, you'd better use parted tool following the next steps:
+	- providing we have a new disk dev '/dev/vdb' (volume = 3.91TiB > 2TiB), run command [$ sudo parted /dev/vdb]
+ 	- (parted) mklabel gpt (creating gpt partition tables)
+  	- (parted) mkpart primary ext4 0% 100%  #create a new partition 3.91TiB
+   	- (parted) quit
+    	- sudo mkfs.ext4 /dev/vdb # creating file system
+     	- sudo mount -t ext4 /dev/vdb1 /opt # mount the disk
+        - df -h # check if the operation mount is executed successfully
 
 
 # signal function
