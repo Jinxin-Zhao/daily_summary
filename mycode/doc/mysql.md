@@ -21,3 +21,34 @@ char类型是定长的：MYSQL总是根据定义的字符串长度分配足够�
         ' str2'
         'str3'
     ```
+# MYSQL Operation
++ 一般来说mysql的binlog在目录/var/lib/mysql下， mysql命令行进入:
+  ```mysql
+  ]# mysql -u root -p
+
+  # remove logs before binlog.000911
+  mysql> PURGE BINARY LOGS TO 'binlog.000911';
+
+  # remove logs over 7 days
+  mysql> SET GLOBAL expire_logs_days = 7;
+  ```
+  + 可以设置binlog生成的路径：
+  ```shell
+    ]$ sudo systemctl stop mysql
+    # or
+    ]$ sudo service mysql stop
+
+    # move current binlog
+    ]$ sudo mv /var/lib/mysql/binlog.*  /new/path/binglog
+
+    # modify mysql config file
+    # cd /etc/mysql/my.cnf or /etc/my.cnf
+     vi /etc/mysql/my.cnf
+    [mysqld]
+    log-bin = /new/path/binglog
+
+     # start mysql server
+     ]$ sudo systemctl start mysql
+     # verify the modification
+     ]$ show VARIABLES LIKE 'log_bin_basename';
+  ```
