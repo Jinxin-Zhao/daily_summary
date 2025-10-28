@@ -1,3 +1,10 @@
+### how to get corefile in Ubuntu
++ the crash files are generated in '/var/crash', the file looks like '_opt_uat_monrisk3_bin_monrisk.998.crash'.
+  1. execute the cmd: sudo apport-unpack _opt_uat_monrisk3_bin_monrisk.998.crash '<target dir>'
+  the <target dir> must exist and be empty.
+  2. cd <target dir>
+  3. gdb <target executable file> CoreDump
+
 ### apt-get
 + Q1: 使用Ubuntu打开终端时,输入带有sudo apt-get 命令行是回报下面错误:
 
