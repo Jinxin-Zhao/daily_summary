@@ -2,6 +2,17 @@
 
 ---
 
+# conda configuration in linux
+conda config --set auto_activate_base false
++ create new env
+]$ conda create -n uat_env python=3.13
++ activate uat_env
+]$ conda activate uat_env
+
+# 如果项目目录有enviroment.yml
+conda env update -f environment.yml
+# 如果项目提供的是requirements.txt
+pip install -r requirements.txt
 
 # 1. Python Base
 
