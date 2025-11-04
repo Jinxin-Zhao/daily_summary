@@ -1,3 +1,51 @@
+# 跨平台开发不同系统换行符统一问题(QT为例)
++ 在各自平台执行命令:
+```shell
+# 提交时CRLF→LF，检出时LF→CRLF。保护Windows本地环境
+]$ git config --global core.autocrlf true
+
+```
+在windows环境下最好加上.gitattributes文件，它能在项目级别强制规则，不依赖个人设置，确保代码库统一使用LF。对于Windows批处理等特定文件，可以例外使用CRLF。内容如下:
+```shell
+# 核心规则：让Git自动判断文本文件，并统一为LF换行符
+* text=auto eol=lf
+
+# 明确一些Qt项目常见的文本文件类型
+*.pri text
+*.pro text
+*.cpp text
+*.h text
+*.qml text
+*.ui text
+
+# 如果项目中有Windows批处理文件，为其保留CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 排除二进制文件，防止Git误处理
+*.png binary
+*.jpg binary
+*.zip binary
+```
+然后将这个文件提交（commit）并推送（push）到远程仓库。
+
+然后同步设置macos/linux环境：
+```shell
+# 提交时CRLF→LF，检出时不转换。保护macOS/Linux环境并确保仓库纯净
+]$ git config --global core.autocrlf input
+```
+并拉取包含.gitattributes文件的最新项目代码。
+
+补充建议：
+如果问题已经存在：如果仓库中已经混用了换行符，可以在配置好.gitattributes后，执行以下命令进行一次彻底清理：
+```shell
+git add --renormalize .
+git commit -m "统一换行符"
+```
+关于Qt源码文件编码的额外提示：除了换行符，跨平台Qt开发时，源码文件的字符编码也建议统一为UTF-8 with BOM，这可以更好地避免在Windows（如MSVC编译器）和macOS上出现中文等特殊字符的乱码问题。
+
+
+
 <h2>git操作流程</h2>
 
 在提交本地文件到版本库时，需要对提交的内容进行界定，原则上只提交项目中的代码、构建脚本等相关内容，不应提交编译过程产生的文件或者是运行程序等
