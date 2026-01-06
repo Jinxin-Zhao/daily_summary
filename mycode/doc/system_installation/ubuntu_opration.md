@@ -54,3 +54,32 @@ E: Sub-process /usr/bin/dpkg returned an error code (1)
     find line PermitRootLogin prohibit-password,set yes
     ]# sudo service ssh restart
 + use xshell to login 
+
+### update gcc version no. to 13 in ubuntu22.04
++ to support c++20, update gcc version to 12(official support)/(13/14 by PPA)
+
+    ```shell
+    ]$ sudo apt update
+    ]$ sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+    ]$ sudo apt update
+    ]$ sudo apt install gcc-13 g++-13  # 或者选择 gcc-14
+    ```
++ configuration
+
+安装完成后，系统默认指向的仍是 GCC 11。你需要使用 update-alternatives 工具来管理并切换默认版本。 
+第一步：将不同版本注册到系统（以 GCC 12 为例，若安装了 13 则替换对应数字）：
+要使用 update-alternatives 工具切换 GCC 版本，需要先将已安装的版本注册到系统中。具体命令可以参考 文心快码 或 岁月轻狂。 
+第二步：切换默认版本：
+运行 sudo update-alternatives --config gcc 命令，根据提示选择要设为默认的 GCC 版本。
+
+如果遇到问题：(reference: https://comate.baidu.com/zh/page/ay7aojt9jkp)
+    ]$ update-alternatives --list g++
+    update-alternatives: error: no alternatives for g++。
+
+    1. register gcc(default : 11) to update-alternatives tool
+    ]$ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 110 --slave /usr/bin/g++ g++ /usr/bin/g++-11
+    2. register gcc(default : 13) to update-alternatives tool
+    ]$ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 130 --slave /usr/bin/g++ g++ /usr/bin/g++-13
+
+    ]$ sudo update-alternatives --config gcc
+
