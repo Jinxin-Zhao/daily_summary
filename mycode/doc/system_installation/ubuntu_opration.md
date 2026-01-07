@@ -83,3 +83,20 @@ E: Sub-process /usr/bin/dpkg returned an error code (1)
 
     ]$ sudo update-alternatives --config gcc
 
+如果机器到ppa网址网络不通，需要手动安装，按照以下步骤：
+1. # 此命令会输出大量信息，包含所有需要下载的包名和URL
+apt-get install --reinstall -d -y --print-uris gcc-13 g++-13 | grep -E "^'" | awk '{print$1}' | tr -d "'" > download-list.txt
+此步骤会将需要的deb包列表写到download-list.txt中，需借助外部机器网络下载下来然后传入到目标机器
+2. 如果上面命令失败了，执行：
+    1). 模拟安装，获取详细的包列表
+        apt-get install -s gcc-13 g++-13 2>/dev/null | grep "^Inst " | awk '{print$2}' > package-list.txt
+    2). 为列表中的每个包生成下载URL（这步可能需要根据你的Ubuntu版本调整仓库地址）
+      假设你使用 main 和 universe 仓库
+      for pkg in $(cat package-list.txt); do echo "http://archive.ubuntu.com/ubuntu/pool/main/$(apt-cache show $pkg 2>/dev/null | grep "Filename:" | head -1 | awk '{print$2}')";          done | grep -v "^$" > download-list.txt
+3. 进入到deb包的目录执行：
+]$ sudo dpkg -i *.deb
+]$ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
+]$ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
+# 如果需要切换回其他版本，可以运行
+# sudo update-alternatives --config gcc
+
