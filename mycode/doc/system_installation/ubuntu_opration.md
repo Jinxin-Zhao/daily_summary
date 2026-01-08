@@ -66,13 +66,13 @@ E: Sub-process /usr/bin/dpkg returned an error code (1)
     ```
 + configuration
 
-安装完成后，系统默认指向的仍是 GCC 11。你需要使用 update-alternatives 工具来管理并切换默认版本。 
-第一步：将不同版本注册到系统（以 GCC 12 为例，若安装了 13 则替换对应数字）：
-要使用 update-alternatives 工具切换 GCC 版本，需要先将已安装的版本注册到系统中。具体命令可以参考 文心快码 或 岁月轻狂。 
-第二步：切换默认版本：
-运行 sudo update-alternatives --config gcc 命令，根据提示选择要设为默认的 GCC 版本。
+ - 安装完成后，系统默认指向的仍是 GCC 11。你需要使用 update-alternatives 工具来管理并切换默认版本。 
+    第一步：将不同版本注册到系统（以 GCC 12 为例，若安装了 13 则替换对应数字）：
+    要使用 update-alternatives 工具切换 GCC 版本，需要先将已安装的版本注册到系统中。具体命令可以参考 文心快码 或 岁月轻狂。 
+    第二步：切换默认版本：
+    运行 sudo update-alternatives --config gcc 命令，根据提示选择要设为默认的 GCC 版本。
 
-如果遇到问题：(reference: https://comate.baidu.com/zh/page/ay7aojt9jkp)
+ - 如果遇到问题：(reference: https://comate.baidu.com/zh/page/ay7aojt9jkp)
     ]$ update-alternatives --list g++
     update-alternatives: error: no alternatives for g++。
 
@@ -83,7 +83,7 @@ E: Sub-process /usr/bin/dpkg returned an error code (1)
 
     ]$ sudo update-alternatives --config gcc
 
-如果机器到ppa网址网络不通，需要手动安装，按照以下步骤：
+ - 如果机器到ppa网址网络不通，需要手动安装，按照以下步骤：
   1. 此命令会输出大量信息，包含所有需要下载的包名和URL
     apt-get install --reinstall -d -y --print-uris gcc-13 g++-13 | grep -E "^'" | awk '{print$1}' | tr -d "'" > download-list.txt
     此步骤会将需要的deb包列表写到download-list.txt中，需借助外部机器网络下载下来然后传入到目标机器
@@ -94,9 +94,28 @@ E: Sub-process /usr/bin/dpkg returned an error code (1)
       假设你使用 main 和 universe 仓库
       for pkg in $(cat package-list.txt); do echo "http://archive.ubuntu.com/ubuntu/pool/main/$(apt-cache show $pkg 2>/dev/null | grep "Filename:" | head -1 | awk '{print$2}')";          done | grep -v "^$" > download-list.txt
   3. 进入到deb包的目录执行：
-    ]$ sudo dpkg -i *.deb
-    ]$ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
-    ]$ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
-如果需要切换回其他版本，可以运行
+     ```shell
+        ]$ sudo dpkg -i *.deb
+        ]$ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
+        ]$ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
+    ```
+ - 如果需要切换回其他版本，可以运行
     sudo update-alternatives --config gcc
 
+ - 如果遇到这样的问题：
+   ./your_program: /usr/lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.29' not found (required by ./your_program)
+   ```shell
+    strings /usr/lib/x86_64-linux-gnu/libstdc++.so.6 | grep GLIBCXX
+   ```
+   更新软件包列表：
+   ```shell
+     ]$ sudo apt update
+     ]$ sudo apt install libstdc++6
+   ```
+   如果系统提示已是最新版本，但版本仍不够高，你可能需要启用包含较新工具链的软件源。对于Ubuntu 22.04，可以添加 ubuntu-toolchain-r/test PPA（其中包含gcc-13及相关库
+   ```shell
+    ]$ sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+    ]$ sudo apt update
+    ]$ sudo apt upgrade libstdc++6
+   ```
+   sudo find /usr -name "libstdc++.so*" 2>/dev/null | grep gcc-13
