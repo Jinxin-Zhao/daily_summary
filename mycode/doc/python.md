@@ -1,6 +1,192 @@
 [toc]
 
 ---
+# project configuration
+如果您希望继续使用当前代码中的导入方式（不使用 `trading.` 前缀），您需要确保 `trading` 目录本身在 Python 路径中，而不是它的子目录。让我详细说明解决方案：
+
+## **问题根源**
+您当前的导入方式是：
+```python
+from core.bus import EventBus
+from definitions.events import OrderRequest
+```
+Python 会查找 `sys.path` 中的每个目录，寻找 `core/` 文件夹。
+
+## **解决方案**
+
+### **方法1：正确的PYTHONPATH设置**
+将 `trading` 目录添加到 PYTHONPATH，而不是它的子目录：
+
+```bash
+# 错误（您的当前设置）：
+PYTHONPATH = D:/trading/; D:/trading/core; D:/trading/definitions
+
+# 正确（应该这样设置）：
+PYTHONPATH = D:/trading
+```
+
+**原理**：Python 在 `D:/trading` 中找到 `core/` 目录，然后可以导入 `core.bus`。
+
+### **方法2：在PyCharm中配置（推荐）**
+
+1. **将项目标记为源根目录**：
+   - 在PyCharm项目窗口中，右键点击 `trading` 文件夹
+   - 选择 `Mark Directory as` → `Sources Root`
+   
+   ![PyCharm标记源根目录](https://resources.jetbrains.com/help/img/idea/2023.3/mark_directory_as.png)
+
+2. **或者配置项目结构**：
+   - `File` → `Settings` → `Project: [项目名]` → `Project Structure`
+   - 选中 `trading` 目录，点击上方的 `Sources` 按钮（或右键标记为Sources）
+   
+3. **配置运行/调试设置**：
+   - `Run` → `Edit Configurations`
+   - 在 `Environment variables` 中添加：
+     ```
+     PYTHONPATH=D:/trading
+     ```
+   - 或者在 `Working directory` 设置为 `D:/trading` 的父目录
+
+### **方法3：创建 `.pth` 文件（最可靠）**
+
+1. 找到您的 Python 解释器的 site-packages 目录：
+   - 在 PyCharm 的 Python Console 中运行：
+   ```python
+   import site
+   print(site.getsitepackages())
+   ```
+
+2. 通常路径是：
+   ```
+   D:/ProgramData/anaconda3/Lib/site-packages/
+   ```
+
+3. 在该目录下创建一个名为 `trading.pth` 的文件，内容为：
+   ```
+   D:/trading
+   ```
+
+4. 重启 PyCharm
+
+### **方法4：在代码中动态添加路径**
+
+在 `unit_test` 的每个文件开头添加：
+
+```python
+import sys
+import os
+
+# 获取当前文件的绝对路径
+current_file = os.path.abspath(__file__)
+# 获取unit_test目录
+unit_test_dir = os.path.dirname(current_file)
+# 获取trading目录
+trading_dir = os.path.dirname(unit_test_dir)
+
+# 将trading目录添加到Python路径
+if trading_dir not in sys.path:
+    sys.path.insert(0, trading_dir)
+
+# 现在可以使用您的原始导入方式
+from core.bus import EventBus
+from definitions.events import OrderRequest, OrderValidated, TickEvent, OrderRiskRejected
+from definitions.objects import Tick
+from modules.base_module import BaseModule
+```
+
+### **方法5：创建 `__init__.py` 文件并配置 PyCharm**
+
+1. **确保每个目录都是包**：
+   ```
+   trading/
+   ├── __init__.py        # 新增
+   ├── core/
+   │   ├── __init__.py    # 应该已有
+   │   └── bus.py
+   ├── definitions/
+   │   ├── __init__.py    # 应该已有
+   │   ├── events.py
+   │   └── objects.py
+   ├── xtquant/
+   │   ├── __init__.py    # 新增
+   │   └── xtconstant.py
+   ├── modules/
+   │   ├── __init__.py    # 应该已有
+   │   └── base_module.py
+   └── unit_test/
+       ├── __init__.py    # 新增
+       └── 您的文件.py
+   ```
+
+2. **在 PyCharm 中重新加载项目**：
+   - `File` → `Invalidate Caches and Restart...`
+
+### **方法6：使用环境激活脚本**
+
+对于 Anaconda，创建一个激活脚本：
+
+1. 创建文件：`D:/ProgramData/anaconda3/etc/conda/activate.d/trading_path.bat`
+2. 内容：
+   ```batch
+   @echo off
+   set PYTHONPATH=D:/trading;%PYTHONPATH%
+   ```
+
+3. 重新打开 Anaconda Prompt 或重启 PyCharm
+
+### **验证配置是否生效**
+
+在您的 `unit_test` 文件中添加调试代码：
+
+```python
+import sys
+print("当前 Python 路径:")
+for path in sys.path:
+    print(f"  {path}")
+
+# 检查是否能导入
+try:
+    from core.bus import EventBus
+    print("✓ 导入 core.bus 成功")
+except ImportError as e:
+    print(f"✗ 导入失败: {e}")
+    
+    # 手动检查路径
+    import os
+    print(f"\n检查 trading 目录: D:/trading")
+    print(f"目录存在: {os.path.exists('D:/trading')}")
+    print(f"core 目录存在: {os.path.exists('D:/trading/core')}")
+    print(f"bus.py 存在: {os.path.exists('D:/trading/core/bus.py')}")
+```
+
+### **最简解决方案**
+
+1. **在 PyCharm 中**：
+   - 右键 `trading` 文件夹 → `Mark Directory as` → `Sources Root`
+   - 重启 PyCharm
+
+2. **如果还不行**：
+   - 在 `unit_test` 文件开头添加：
+   ```python
+   import sys
+   sys.path.insert(0, r'D:/trading')
+   ```
+
+### **为什么您之前的配置无效**
+
+您设置了：
+```
+PYTHONPATH = D:/trading/; D:/trading/core; D:/trading/definitions
+```
+
+当 Python 在 `D:/trading/core` 中查找 `core.bus` 时：
+1. 它会在 `D:/trading/core` 目录下找 `core` 文件夹 → 找不到
+2. 所以无法导入 `core.bus`
+
+**正确思路**：Python 需要在 `D:/trading` 中找 `core` 文件夹，然后找 `bus.py`。
+
+选择最简单的方法开始尝试，通常方法2（在PyCharm中标记为Sources Root）是最简单有效的。
+
 
 # conda configuration in linux
 conda config --set auto_activate_base false
