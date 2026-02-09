@@ -1,5 +1,16 @@
 [toc]
 
+# qlib installation
+
+```python
+   # install these components before qlib installation
+   ]$ pip install cvxpy dill fire gym joblib jupyter lightgbm loguru matplotlib mlflow nbconvert pyarrow pymongo python-redis-lock pyyaml redis ruamel.yaml tqdm
+
+   # install torch
+   ]$ # 最新的稳定版
+   pip install torch torchvision torchaudio
+```
+
 ---
 # project configuration
 如果您希望继续使用当前代码中的导入方式（不使用 `trading.` 前缀），您需要确保 `trading` 目录本身在 Python 路径中，而不是它的子目录。让我详细说明解决方案：
