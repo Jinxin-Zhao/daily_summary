@@ -1,5 +1,8 @@
 [toc]
 
+# install python3.14 without gil(multithread) in anaconda
+]$ conda create -n py314_no_gil -c conda-forge python=3.14 python-freethreading
+
 # qlib installation
 
 ```python
