@@ -739,3 +739,138 @@ ushort semncnt; /* 等待semval大于当前值的进程个数 */
 ushort semzcnt; /* 等待semval变成0的进程个数 */
 };
 ```
+
+
+# 空闲磁盘挂载
++ 系统盘（vda）快满了，而数据盘（vdb）闲着没动。
+由于你的程序已经在 /opt/dev 运行，最稳妥且推荐的做法是将 vdb 挂载到一个临时目录，把数据搬过去，然后通过逻辑挂载或软链接的方式，让系统认为数据还在 /opt/dev，但物理存储其实是在 vdb 上。
+1. 核心原理
+在 Linux 中，磁盘必须先分区、格式化（建立文件系统），然后挂载到某个目录才能使用。
+我们的操作逻辑是：
+准备载体：将 vdb 格式化并挂载。
+数据迁移：把 /opt/dev 的内容搬到 vdb。
+路径映射：将 vdb 永久挂载到 /opt/dev。这样你的程序路径不变，但空间从 99G 变成了 1000G。
+2. 执行步骤
+第一步：初始化大磁盘 vdb
+首先我们要给这 1000G 的盘创建分区并格式化。
+    - 创建分区：
+```shell
+        ]# sudo fdisk /dev/vdb
+        输入 n (新建分区)
+        输入 p (主分区)
+        一路回车（默认使用全部 1000G 空间）
+        输入 w (保存并退出)
+
+        # 过程展示：
+        # dhzb@DHZB:/opt/dev$ sudo fdisk /dev/vdb
+        # [sudo] password for dhzb:
+
+        # Welcome to fdisk (util-linux 2.39.3).
+        # Changes will remain in memory only, until you decide to write them.
+        # Be careful before using the write command.
+
+        # Device does not contain a recognized partition table.
+        # Created a new DOS (MBR) disklabel with disk identifier 0xa557867a.
+
+    # Command (m for help): n
+    # Partition type
+    #    p   primary (0 primary, 0 extended, 4 free)
+    #    e   extended (container for logical partitions)
+    # Select (default p): p
+    # Partition number (1-4, default 1):
+    # First sector (2048-2097151999, default 2048):
+    # Last sector, +/-sectors or +/-size{K,M,G,T,P} # (2048-2097151999,     default 2097151999):
+
+    # Created a new partition 1 of type 'Linux' and of size 1000 GiB.
+
+    # Command (m for help):
+
+
+    # Command (m for help): w
+
+    # The partition table has been altered.
+    # Calling ioctl() to re-read partition table.
+    # Syncing disks.
+```
+
+    - 格式化为ext4格式：
+```shell
+        ]# sudo mkfs.ext4 /dev/vdb1
+        # 过程展示
+        #mke2fs 1.47.0 (5-Feb-2023)
+        #Creating filesystem with 262143744 4k blocks and 65536000 inodes
+        #Filesystem UUID: 941208a4-004f-49c2-a9b9-8c1dde6e167d
+        #Superblock backups stored on blocks:
+        #32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208,
+        #4096000, 7962624, 11239424, 20480000, 23887872, 71663616, 78675968,
+        #102400000, 214990848
+
+        # Allocating group tables: done
+        # Writing inode tables: done
+        # Creating journal (262144 blocks): done
+        # Writing superblocks and filesystem accounting information: done
+        
+```
+
+#### 第二步：数据迁移
+为了保证数据不丢失，我们需要先迁移现有日志和程序。
+
+1.  **创建临时挂载点并挂载**：
+    ```bash
+    sudo mkdir /mnt/newdisk
+    sudo mount /dev/vdb1 /mnt/newdisk
+
+2. 停止程序
+
+3. 同步数据
+```shell
+# -av 能保留权限和属性
+]# sudo rsync -av /opt/dev/ /mnt/newdisk/
+
+```
+
+# 最后一步
++ 正式切换挂载点
+    - 清空原目录(可选)并挂载:
+    ```shell
+    sudo rm -rf /opt/dev/*  # 确保旧空间被释放
+    sudo umount /mnt/newdisk
+    sudo mount /dev/vdb1 /opt/dev
+    ```
+    此时，执行 `df -h` 你会发现 `/opt/dev` 已经拥有了 1000G 空间。
+
+#### 第四步：配置开机自动挂载
+如果不做这一步，重启服务器后 `/opt/dev` 会变回空的。
+
+1.  **获取磁盘 UUID**：
+    ```bash
+    blkid /dev/vdb1
+    ```
+    复制那一串类似 `UUID="xxxx-xxxx"` 的字符串。
+
+2.  **修改 fstab 文件**：
+    ```bash
+    sudo nano /etc/fstab
+    ```
+    在文件末尾添加一行：
+    ```text
+    UUID=你的UUID /opt/dev ext4 defaults 0 2
+    ```
+
+3.  **测试配置**：
+    ```bash
+    sudo mount -a
+    ```
+    如果没有报错，说明配置成功。
+
+---
+
+### 3. 为什么不建议“分一部分”过来？
+你提到的“分一部分过来”可能指**扩容**。但扩容前提是 `vda` 和 `vdb` 必须在同一个 **LVM（逻辑卷管理）** 中。
+*   根据你的 `lsblk` 显示，你使用的是物理分区（part），而非 LVM。
+*   物理分区跨磁盘扩容风险极大且操作极其复杂。
+*   **直接挂载**（上述方案）是云服务器环境下最标准、最安全的做法。
+
+### 总结
+现在你的 `/opt/dev` 物理上指向了 `vdb`。后续如果 1000G 还不够，你可以再买一块盘挂载到 `/opt/dev/logs` 这种更深的目录，原理是一样的。
+    ```
